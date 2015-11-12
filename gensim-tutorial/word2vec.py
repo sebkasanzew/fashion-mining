@@ -13,7 +13,7 @@ from gensim import corpora, models, similarities
 from pprint import pprint
 
 # Create Dictionary
-path = '/tmp/deerwester.dict'
+path = '/tmp/zalando.dict'
 
 if os.path.exists(path) == False:
     print('create dictionary')
@@ -32,18 +32,20 @@ documents = [ "sandal with jacket dress vest tuxedo",
 
 tokens = []
 token = 0
-test = []
+corpus = []
 for document in documents:
   sentences = nltk.sent_tokenize(document)
 
 # nltk version 3.1 beacuse in 3.0 pos_tag doesnt work
 
   for s in sentences:
-    token = nltk.word_tokenize(s)
-    print(token)
-    tokens.append(nltk.word_tokenize(s))
+    tokens = nltk.word_tokenize(s)
 
-  test.append(dictionary.doc2bow(token))
+  corpus.append(dictionary.doc2bow(tokens))
 
 
-print(test)
+corpora.MmCorpus.serialize('/tmp/zalando.mm', corpus)
+#corpus = corpora.MmCorpus('/tmp/zalando.mm')
+print(corpus)
+
+
