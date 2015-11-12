@@ -20,7 +20,7 @@
 ## Installation instructions for Debian Linux (Ubuntu)
 
 ### NLTK Installation (Debian/Ubuntu Linux)
-1. execute in the python command line <code>pip install nltk</code>
+1. open terminal and execute <code>pip install nltk</code>
 2. make sure in downloader.py line 380 in <code>/usr/local/lib/python2.7/dist-packages/nltk/</code> the <code>DEFAULT_URL</code> is set to <code>"http://nltk.github.com/nltk_data/"</code>
 3. download nltk data by executing this command:
 ```
@@ -48,7 +48,7 @@ libatlas-base-dev
 
 ~$ sudo easy_install pip
 
-~$ pip install --upgrade gensim
+~$ sudo pip install --upgrade gensim
 (NumPy and SciPy would be downloaded automatically)
 ```
 
