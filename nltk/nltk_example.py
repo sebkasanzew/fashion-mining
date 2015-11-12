@@ -42,5 +42,7 @@ for x in range(0, 3):
         data.append({"url": json_data["url"], "sent_id": sent_id, "sentence": s, "nouns": nouns})
         sent_id += 1
 
+print "########## JSON with sentences, id and nouns ##########"
 print json.dumps(data)
-print nouns_data
+print "########## List of Nouns with sentences ids ##########"
+print json.dumps(nouns_data)
