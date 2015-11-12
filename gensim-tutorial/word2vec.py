@@ -13,7 +13,7 @@ from gensim import corpora, models, similarities
 from pprint import pprint
 
 # Create Dictionary
-path = '/tmp/zalando.dict'
+path = '/tmp/'
 
 # if os.path.exists(path) == False:
 #     print('create dictionary')
@@ -58,11 +58,11 @@ for document in documents:
 ######array of tokens with nouns from nltk
 dictionary = corpora.Dictionary(data)
 print(dictionary.token2id)
-dictionary.save(path)
+dictionary.save(path + 'zalando.dict')
 
 ######match dict with documents
 corpus = [dictionary.doc2bow(text) for text in tokens]
-corpora.MmCorpus.serialize('/tmp/zalando.mm', corpus)
+corpora.MmCorpus.serialize(path + 'zalando.mm', corpus)
 #corpus = corpora.MmCorpus('/tmp/zalando.mm')
 
 # print(nouns)
@@ -82,8 +82,8 @@ print(vec_lsi)
 
 ######Similarity Query######
 index = similarities.MatrixSimilarity(lsi[corpus])
-index.save('/tmp/zalando.index')
-index = similarities.MatrixSimilarity.load('/tmp/zalando.index')
+index.save(path + 'zalando.index')
+index = similarities.MatrixSimilarity.load(path + 'zalando.index')
 sims = index[vec_lsi]
 sims = sorted(enumerate(sims), key=lambda item: -item[1])
 print(sims)
