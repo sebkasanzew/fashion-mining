@@ -1,12 +1,12 @@
-#!/usr/bin/python
-# coding: utf-8
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import logging;
-import nltk;
-import os;
-import sys;
+import logging
+import nltk
+import os
+import sys
 
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO);
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 # from nltk import pos_tag, word_tokenize, sent_tokenize
 from gensim import corpora, models, similarities
