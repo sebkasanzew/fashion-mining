@@ -3,7 +3,7 @@
 
 
 import nltk
-import mod.word2vec.word2vec as w2v
+import mod.word2vec as w2v
 
 
 def main():
