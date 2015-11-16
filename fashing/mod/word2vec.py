@@ -16,10 +16,10 @@ from pprint import pprint
 path = '/tmp/'
 
 # read data file and put every json into an array
-with open("../../../data/plain_text.json", "r") as text_file:
+with open("../../data/plain_text.json", "r") as text_file:
   text = text_file.readlines()
 
-with open("../../../data/fashion-words.txt", "r") as text_file:
+with open("../../data/fashion-words.txt", "r") as text_file:
   f_words = text_file.readlines()
 
 # Example document
