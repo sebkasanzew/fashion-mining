@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import importlib
-import mod.nltk_example
+import fashing.mod.nltk_example
 
 
 def main():
