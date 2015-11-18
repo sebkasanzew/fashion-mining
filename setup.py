@@ -6,8 +6,12 @@ from distutils.core import setup
 setup(
     name='fashing',
     version='0.1',
+    url='https://cgmgit.beuth-hochschule.de/zalando-text-mining/fashion-mining/',
     description='fashion mining application',
     author='Benjamin Fischer, Raul Vinh Khoa Nguyen, Sebastian Kasanzew, Sebastian Krawczyk',
     author_email='...@..., ...@..., sebkasanzew@gmail.com, ...@...',
-    packages=["nltk"]
+    install_requires=['gensim>=0.12.2',
+                      'nltk>=2.0',
+                      ],
+    packages=["fashing"]
 )

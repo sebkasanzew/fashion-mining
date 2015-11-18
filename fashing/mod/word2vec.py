@@ -6,11 +6,28 @@ import nltk
 import json
 import os
 import sys
-
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-
 from gensim import corpora, models, similarities
 from pprint import pprint
+
+
+def main():
+    """The main test executable"""
+    # Here goes the code from below
+
+
+def custom_public_function_reachable_from_outside():
+    """define functions that can be accessed from main.py and other modules"""
+
+
+if __name__ == "__main__":
+    # Execute the main function if this file was executed from the terminal
+    main()
+
+
+# TODO please move the code below up into the main function ##############################
+# ########################################################################################
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 # Create Dictionary
 path = '/tmp/'
