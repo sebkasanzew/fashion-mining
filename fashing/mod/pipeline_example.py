@@ -21,6 +21,9 @@ with open("../../data/plain_text.json", "r") as text_file:
 with open("../../data/fashion-words.txt", "r") as text_file:
     f_words = text_file.readlines()
 
+with open("../../data/plain_text_corpus_2.txt", "r") as text_file:
+    test_corpus = text_file.readlines()
+
 for word in f_words:
     for dic in word.lower().split():
         fashion_words.append([dic.strip('[],')[1:-1]])
@@ -47,7 +50,20 @@ list_of_words = list_of_words
 
 # Testing models for Word2Vec:
 
+#model_1 = Word2Vec.load_word2vec_format('../../../EDM_Data/freebase-vectors-skipgram1000-en.bin.gz', binary=True)
 model_1 = Word2Vec(brown.sents())
+#model_1 = Word2Vec(test_corpus)
+#model_1 = Word2Vec([["the", "company", "has", "to", "sell", "many", "suits"],["thats", "why", "they", "can", "respond", "on", "the", "demand", "of", "many", "costumers"]])
+
+print ""
+print "-------------------------TEST:"
+#print model_1.most_similar("/en/girl", topn=5)
+print model_1
+print "------------------------------"
+#print model_2
+print "------------------------------"
+print ""
+
 #model_2 = Word2Vec(words.words()) #kP
 print "################################################################################################################"
 print "#                              Words from dictionary with hightes Similarity                                   #"
@@ -60,6 +76,7 @@ for w in list_of_words:
     for f in fashion_words:
         try:
             cos = model_1.similarity(w, f[0])
+            #cos = model_1.similarity("/en/" + w, "/en/" + f[0])
             if cos > sim:
                 sim = cos
                 word = f[0]
@@ -74,7 +91,7 @@ print "#########################################################################
 
 for w in list_of_words:
     try:
-        print w + ": " + str(model_1.most_similar(w, topn=5))
+        print w + ": " + str(model_1.most_similar("/en/" + w, topn=3))
     except:
         print (w + " is not in vocabulary!")
 
