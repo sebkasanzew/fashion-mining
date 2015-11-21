@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import gensim
+import texttable as tt
 from gensim import corpora, models, similarities
 from pprint import pprint
 
@@ -135,8 +136,31 @@ def word2vec():
       for word in tok_words:
         list_of_words.append(word)
 
+
+  # Creating a test Table
+  tab = tt.Texttable()
+  tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
+  tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
+  tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
+  tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
+
+  tab.set_cols_width([15,15,15,15,15,15,15,15,15])
+  tab.set_cols_align(['l','l','l','l','l','l','l','l','l'])
+  tab.set_cols_valign(['t','t','t','t','t','t','t','t','t'])
+  tab.set_deco(tab.HEADER | tab.VLINES)
+  tab.set_chars(['-','|','+','#'])
+
+  s = tab.draw()
+
+  print "##########################################     TEST     ########################################################"
+  print
+  print s
+  print
   print "################################################################################################################"
-  print "#                              Words from dictionary with highest Similarity                                   #"
+
+
+  print "################################################################################################################"
+  print "#                              Words from dictionary with highest similarity                                   #"
   print "################################################################################################################"
 
   model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
