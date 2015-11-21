@@ -12,7 +12,7 @@ from gensim.models import Word2Vec
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 # read data file and put every json into an array
-with open("../../data/plain_text.json", "r") as text_file:
+with open("../../data/plain_text_optimized.json", "r") as text_file:
   text = text_file.readlines()
 
 with open("../../data/fashion-words.txt", "r") as text_file:
@@ -41,7 +41,7 @@ for doc in text:
 
   pickle.dump(tokens, token_file)
   if ( text.index(doc) % 1000 == 0 ):
-    print str(text.index(doc)) + " from " + str(length) + " senetences tokenized"
+    print str(text.index(doc)) + " of " + str(length) + " sentences tokenized"
 
 class MySentence(object):
 
@@ -60,5 +60,5 @@ class MySentence(object):
 token_file = open("../../data/token_words.txt", "r")
 sentences = MySentence()
 model = Word2Vec([doc for doc in sentences])
-model.save('/../../data/fashion_model')
+model.save('../../data/fashion_model')
 

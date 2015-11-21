@@ -21,7 +21,7 @@ with open("../../data/plain_text.json", "r") as text_file:
 with open("../../data/fashion-words.txt", "r") as text_file:
     f_words = text_file.readlines()
 
-with open("../../data/plain_text_corpus_2.txt", "r") as text_file:
+with open("../../data/plain_text_corpus.txt", "r") as text_file:
     test_corpus = text_file.readlines()
 
 for word in f_words:
@@ -51,7 +51,9 @@ list_of_words = list_of_words
 # Testing models for Word2Vec:
 
 #model_1 = Word2Vec.load_word2vec_format('../../../EDM_Data/freebase-vectors-skipgram1000-en.bin.gz', binary=True)
-model_1 = Word2Vec(brown.sents())
+
+model_1 = Word2Vec.load('../../data/models/fashion_model')
+#model_1 = Word2Vec(brown.sents())
 #model_1 = Word2Vec(test_corpus)
 #model_1 = Word2Vec([["the", "company", "has", "to", "sell", "many", "suits"],["thats", "why", "they", "can", "respond", "on", "the", "demand", "of", "many", "costumers"]])
 
@@ -66,7 +68,7 @@ print ""
 
 #model_2 = Word2Vec(words.words()) #kP
 print "################################################################################################################"
-print "#                              Words from dictionary with hightes Similarity                                   #"
+print "#                              Words from dictionary with highest Similarity                                   #"
 print "################################################################################################################"
 
 sim = 0
@@ -86,12 +88,12 @@ for w in list_of_words:
     sim = 0
 
 print "################################################################################################################"
-print "#                                Top 5 similar words from Word2Vec corpus brown                                #"
+print "#                                Top 3 similar words from Word2Vec corpus brown                                #"
 print "################################################################################################################"
 
 for w in list_of_words:
     try:
-        print w + ": " + str(model_1.most_similar("/en/" + w, topn=3))
+        print w + ": " + str(model_1.most_similar(w, topn=3))
     except:
         print (w + " is not in vocabulary!")
 

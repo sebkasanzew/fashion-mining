@@ -106,7 +106,6 @@ def main():
 
 
 def word2vec():
-  print "################################################################################################################"
   with open("../../data/plain_text.json", "r") as text_file:
     text = text_file.readlines()
 
@@ -136,11 +135,11 @@ def word2vec():
       for word in tok_words:
         list_of_words.append(word)
 
-
-  print "#                              Words from dictionary with hightes Similarity                                   #"
+  print "################################################################################################################"
+  print "#                              Words from dictionary with highest Similarity                                   #"
   print "################################################################################################################"
 
-  model_1 = gensim.models.Word2Vec.load('/opt/word2vec/fashion_model')
+  model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
 
   sim = 0
   word = ""
@@ -159,12 +158,12 @@ def word2vec():
     sim = 0
 
   print "################################################################################################################"
-  print "#                                Top 5 similar words from Word2Vec corpus fashion_model                        #"
+  print "#                                Top 3 similar words from Word2Vec corpus fashion_model                        #"
   print "################################################################################################################"
 
   for w in list_of_words:
     try:
-      print w + ": " + str(model_1.most_similar("/en/" + w, topn=3))
+      print w + ": " + str(model_1.most_similar(w, topn=3))
     except:
       print (w + " is not in vocabulary!")
 
