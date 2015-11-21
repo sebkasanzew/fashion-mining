@@ -116,8 +116,9 @@ def word2vec():
   fashion_words = []
   for word in f_words:
     for dic in word.lower().split():
-        fashion_words.append([dic.strip('[],')[1:-1]])
+      fashion_words.append([dic.strip('[],')[1:-1]])
 
+  # NLTK Tokenizing
   tokens = []
   list_of_words = []
   for x in range(0, 3):
@@ -136,39 +137,50 @@ def word2vec():
       for word in tok_words:
         list_of_words.append(word)
 
+  #print "################################################################################################################"
+  #print "#                              Words from dictionary with highest similarity                                   #"
+  #print "################################################################################################################"
 
-  # Creating a test Table
-  tab = tt.Texttable()
-  tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
-  tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
-  tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
-  tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
-
-  tab.set_cols_width([15,15,15,15,15,15,15,15,15])
-  tab.set_cols_align(['l','l','l','l','l','l','l','l','l'])
-  tab.set_cols_valign(['t','t','t','t','t','t','t','t','t'])
-  tab.set_deco(tab.HEADER | tab.VLINES)
-  tab.set_chars(['-','|','+','#'])
-
-  s = tab.draw()
-
-  print "##########################################     TEST     ########################################################"
-  print
-  print s
-  print
-  print "################################################################################################################"
-
-
-  print "################################################################################################################"
-  print "#                              Words from dictionary with highest similarity                                   #"
-  print "################################################################################################################"
-
+  # load model for word2vec
   model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
 
   sim = 0
   word = ""
+  tab_array = []
+  row_array = []
 
   for w in list_of_words:
+    # appending Word
+    row_array.append(str(w))
+    #TODO: appending POS-Tag
+    row_array.append("--")
+    try:
+      #print w
+      top_three = model_1.most_similar(w, topn=3)
+
+      #print top_three
+
+      row_array.append(str(top_three[0][0]))
+      row_array.append(round(top_three[0][1], 4))
+      #print(top_three[0][0])
+      #print(round(top_three[0][1], 4))
+
+      row_array.append(str(top_three[1][0]))
+      row_array.append(round(top_three[1][1], 4))
+      #print(top_three[1][0])
+      #print(round(top_three[1][1], 4))
+
+      row_array.append(str(top_three[2][0]))
+      row_array.append(round(top_three[2][1], 4))
+      #print(top_three[0][0] + " | " + top_three[1][0] + " | " + top_three[2][0])
+      #print(round(top_three[2][1], 4))
+
+    except:
+      #print(row_array)
+      for x in range(0, 6):
+        row_array.append("**")
+        #print (w + " is not in vocabulary!")
+
     for f in fashion_words:
       try:
         cos = model_1.similarity(w, f[0])
@@ -178,18 +190,44 @@ def word2vec():
           word = f[0]
       except:
         pass
-    print w + " --> " + word + " | similarity: " + str(sim)
+
     sim = 0
+    #appending JOIN-Partner
+    row_array.append(str(word))
+    #print w + " --> " + word + " | similarity: " + str(sim)
 
-  print "################################################################################################################"
-  print "#                                Top 3 similar words from Word2Vec corpus fashion_model                        #"
-  print "################################################################################################################"
+    #print row_array
+    #add row to tab_array, reset row
+    tab_array.append(row_array)
+    row_array = []
 
-  for w in list_of_words:
-    try:
-      print w + ": " + str(model_1.most_similar(w, topn=3))
-    except:
-      print (w + " is not in vocabulary!")
+
+  # Creating a test Table
+  tab = tt.Texttable()
+  tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
+
+  for row in tab_array:
+    #print row
+    #TODO Fix bug
+    if len(row) == 9:
+      tab.add_row(row)
+
+
+  #tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
+  #tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
+  #tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
+
+  tab.set_cols_width([15,15,15,15,15,15,15,15,15])
+  tab.set_cols_align(['l','l','l','l','l','l','l','l','l'])
+  tab.set_cols_valign(['t','t','t','t','t','t','t','t','t'])
+  tab.set_deco(tab.HEADER | tab.VLINES)
+  tab.set_chars(['-','|','+','#'])
+
+  print "##########################################     TEST     ########################################################"
+  print
+  print tab.draw()
+  print
+  print "################################################################################################################"
 
 
 def custom_public_function_reachable_from_outside():
