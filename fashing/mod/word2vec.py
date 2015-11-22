@@ -19,7 +19,6 @@ def main():
   # Here goes the code from below
   # Create Dictionary
 
-
   path = '/tmp/'
 
   # read data file and put every json into an array
@@ -87,7 +86,6 @@ def main():
   # print(dictionary)
   print (corpus)
 
-
   # #####Similarity Interface############
   # ####doc should be dictionary with fashion words
   # docs = test
@@ -113,33 +111,43 @@ def word2vec():
   with open("../../data/fashion-words.txt", "r") as text_file:
     f_words = text_file.readlines()
 
+  # read fashion dictionary
   fashion_words = []
   for word in f_words:
     for dic in word.lower().split():
       fashion_words.append([dic.strip('[],')[1:-1]])
 
-  # NLTK Tokenizing
-  tokens = []
+  #
+  # NLTK Tokenizing with JSON
+  #
   list_of_words = []
-  for x in range(0, 3):
-    # reads first json
-    json_data = json.loads(text[x])
+  # for x in range(0, 2):
+  #   # reads first json
+  #   json_data = json.loads(text[x])
+  #
+  #   # print(json_data)
+  #   extracted_text = json_data["extracted_text"]
+  #
+  #   # Sentence Tokenizing
+  #   sentences = nltk.sent_tokenize(extracted_text)
+  #   # print(sentences)
+  #   for s in sentences:
+  #     # Word tokenizing and tagging
+  #     for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
+  #         list_of_words.append(word)
+  #     #for word in tok_words:
+  #     #  list_of_words.append(word)
 
-    # print(json_data)
-    extracted_text = json_data["extracted_text"]
 
-    # Sentence Tokenizing
-    sentences = nltk.sent_tokenize(extracted_text)
-    # print(sentences)
-    for s in sentences:
-      # Word tokenizing and tagging
-      tok_words = nltk.word_tokenize(s)
-      for word in tok_words:
-        list_of_words.append(word)
+  #
+  # NLTK Tokenizing with Demo sentences
+  #
+  demo_sents = ["British designer Nadia Izruna’s love of clothing and the desire to sew up cheerful, well-designed womenswear spurred her on to start her own label in 2009.",
+                "During Paris Fashion Week I had the opportunity to work on something incredibly special for Valentino and vogue.com."]
 
-  #print "################################################################################################################"
-  #print "#                              Words from dictionary with highest similarity                                   #"
-  #print "################################################################################################################"
+  for s in demo_sents:
+    for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
+      list_of_words.append(word)
 
   # load model for word2vec
   model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
@@ -149,16 +157,16 @@ def word2vec():
   tab_array = []
   row_array = []
 
+  print("###########DEBUG#############")
   for w in list_of_words:
     # appending Word
-    row_array.append(str(w))
-    #TODO: appending POS-Tag
-    row_array.append("--")
+    row_array.append(str(w[0]))
+    # appending POS-Tag
+    row_array.append(str(w[1]))
+
     try:
       #print w
-      top_three = model_1.most_similar(w, topn=3)
-
-      #print top_three
+      top_three = model_1.most_similar(w[0], topn=3)
 
       row_array.append(str(top_three[0][0]))
       row_array.append(round(top_three[0][1], 4))
@@ -176,14 +184,13 @@ def word2vec():
       #print(round(top_three[2][1], 4))
 
     except:
-      #print(row_array)
-      for x in range(0, 6):
-        row_array.append("**")
+      for x in range(0, 8 - len(row_array)):
         #print (w + " is not in vocabulary!")
+        row_array.append("-----")
 
     for f in fashion_words:
       try:
-        cos = model_1.similarity(w, f[0])
+        cos = model_1.similarity(w[0], f[0])
         # cos = model_1.similarity("/en/" + w, "/en/" + f[0])
         if cos > sim:
           sim = cos
@@ -191,44 +198,42 @@ def word2vec():
       except:
         pass
 
-    sim = 0
-    #appending JOIN-Partner
-    row_array.append(str(word))
-    #print w + " --> " + word + " | similarity: " + str(sim)
 
-    #print row_array
+    #appending JOIN-Partner
+    if sim == 0:
+      row_array.append("NONE")
+    else:
+      row_array.append(str(word))
+      #row_array.append(str(word) + "\n" + str(sim))
+      sim = 0
+
     #add row to tab_array, reset row
     tab_array.append(row_array)
     row_array = []
 
 
-  # Creating a test Table
+  # Creating a Table
   tab = tt.Texttable()
   tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
 
   for row in tab_array:
-    #print row
-    #TODO Fix bug
-    if len(row) == 9:
-      tab.add_row(row)
-
+    tab.add_row(row)
 
   #tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
   #tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
   #tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
 
-  tab.set_cols_width([15,15,15,15,15,15,15,15,15])
+  tab.set_cols_width([15,5,15,5,15,5,15,5,15])
   tab.set_cols_align(['l','l','l','l','l','l','l','l','l'])
-  tab.set_cols_valign(['t','t','t','t','t','t','t','t','t'])
-  tab.set_deco(tab.HEADER | tab.VLINES)
-  tab.set_chars(['-','|','+','#'])
+  #tab.set_cols_valign(['t','l','l','l','t','t','t','t','t'])
+  #tab.set_deco(tab.HEADER | tab.VLINES)
+  tab.set_chars(['-','|','+','='])
 
-  print "##########################################     TEST     ########################################################"
   print
+  print "###########################################################################################################################"
+  print "#                                            Textmining with Word2Vec and NLTK                                            #"
+  print "###########################################################################################################################"
   print tab.draw()
-  print
-  print "################################################################################################################"
-
 
 def custom_public_function_reachable_from_outside():
   """define functions that can be accessed from main.py and other modules"""
