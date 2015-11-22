@@ -157,7 +157,6 @@ def word2vec():
   tab_array = []
   row_array = []
 
-  print("###########DEBUG#############")
   for w in list_of_words:
     # appending Word
     row_array.append(str(w[0]))
