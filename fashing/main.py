@@ -20,6 +20,7 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.pack()
         self.create_widgets()
+        self.create_canvas()
 
     def create_widgets(self):
         self.QUIT = Button(self)
@@ -34,6 +35,10 @@ class Application(Frame):
         self.hi_there["command"] = self.say_hi
 
         self.hi_there.pack({"side": "left"})
+
+    def create_canvas(self):
+        self.CANVAS = Canvas(self, width=500, height=500, background='white')
+        self.CANVAS.pack()
 
 
 if __name__ == "__main__":
