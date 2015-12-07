@@ -10,6 +10,8 @@ import gensim
 import texttable as tt
 from gensim import corpora, models, similarities
 from pprint import pprint
+from os.path import join
+import numpy as np
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -149,8 +151,31 @@ def word2vec():
     for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
       list_of_words.append(word)
 
+######################################GLOVE_TO_WORD2VEC#########################################################################
+
+  '''
+    Convert Glove Model to Gensim Word2Vec
+    GloVe is another algorithm that creates vector representations of words similar to word2vec.
+    GloVe transforms the neutral network problem into a word co-occurrence matrix so it should
+    be faster to train but uses more memory.
+  '''
+
+  GLOVE_DIR = '/opt/word2vec/common_words'
+
+  def any2unicode(text, encoding='utf8', errors='strict'):
+    if isinstance(text, unicode):
+      return text
+    return unicode(text.replace('\xc2\x85', '<newline>'), encoding, errors=errors)
+
+  gensim.models.utils.to_unicode = any2unicode
+
+  model_1 = gensim.models.Word2Vec.load_word2vec_format(join(GLOVE_DIR, 'common.840B.300d.txt'), binary=False)
+
+####################################END_GLOVE_TO_WORD2VEC###########################################################################
+
   # load model for word2vec
-  model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
+  #model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
+  #model_1 = gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
 
   sim = 0
   word = ""
@@ -189,8 +214,8 @@ def word2vec():
 
     for f in fashion_words:
       try:
+        #cos = model_1.similarity("/en/" + w[0], "/en/" + f[0])
         cos = model_1.similarity(w[0], f[0])
-        # cos = model_1.similarity("/en/" + w, "/en/" + f[0])
         if cos > sim:
           sim = cos
           word = f[0]
@@ -202,8 +227,8 @@ def word2vec():
     if sim == 0:
       row_array.append("NONE")
     else:
-      row_array.append(str(word))
-      #row_array.append(str(word) + "\n" + str(sim))
+      #row_array.append(str(word))
+      row_array.append(str(word) + "\n" + str(sim))
       sim = 0
 
     #add row to tab_array, reset row
@@ -234,6 +259,7 @@ def word2vec():
   print "###########################################################################################################################"
   print tab.draw()
 
+
 def custom_public_function_reachable_from_outside():
   """define functions that can be accessed from main.py and other modules"""
 
@@ -241,3 +267,4 @@ def custom_public_function_reachable_from_outside():
 if __name__ == "__main__":
   # Execute the main function if this file was executed from the terminal
   word2vec()
+  #gloveToVec()
