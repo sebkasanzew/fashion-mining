@@ -107,10 +107,20 @@ def main():
 
 
 def word2vec():
-  with open("../../data/plain_text.json", "r") as text_file:
+
+  #TODO: improvement
+  PROJECT_DIR = os.path.dirname(__file__)[:-11]
+
+  #print("############################################")
+  #print(PROJECT_DIR + "data/one_word_entities_reduced.txt")
+
+  with open(PROJECT_DIR + "data/plain_text.json", "r") as text_file:
     text = text_file.readlines()
 
-  with open("../../data/fashion-words.txt", "r") as text_file:
+  #with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
+  #  f_words = text_file.readlines()
+
+  with open(PROJECT_DIR + "data/one_word_entities_reduced.txt", "r") as text_file:
     f_words = text_file.readlines()
 
   # read fashion dictionary
@@ -160,7 +170,8 @@ def word2vec():
     be faster to train but uses more memory.
   '''
 
-  GLOVE_DIR = '/opt/word2vec/common_words'
+  #GLOVE_DIR = '/opt/word2vec/common_words'
+  GLOVE_DIR = "../../data/tmp"
 
   def any2unicode(text, encoding='utf8', errors='strict'):
     if isinstance(text, unicode):
@@ -169,12 +180,12 @@ def word2vec():
 
   gensim.models.utils.to_unicode = any2unicode
 
-  model_1 = gensim.models.Word2Vec.load_word2vec_format(join(GLOVE_DIR, 'common.840B.300d.txt'), binary=False)
+  #model_1 = gensim.models.Word2Vec.load_word2vec_format(join(GLOVE_DIR, 'common.840B.300d.txt'), binary=False)
 
 ####################################END_GLOVE_TO_WORD2VEC###########################################################################
 
   # load model for word2vec
-  #model_1 = gensim.models.Word2Vec.load('../../data/models/fashion_model')
+  model_1 = gensim.models.Word2Vec.load(PROJECT_DIR + 'data/models/fashion_model')
   #model_1 = gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
 
   sim = 0
@@ -189,23 +200,14 @@ def word2vec():
     row_array.append(str(w[1]))
 
     try:
-      #print w
+      # appending top three words
       top_three = model_1.most_similar(w[0], topn=3)
-
       row_array.append(str(top_three[0][0]))
       row_array.append(round(top_three[0][1], 4))
-      #print(top_three[0][0])
-      #print(round(top_three[0][1], 4))
-
       row_array.append(str(top_three[1][0]))
       row_array.append(round(top_three[1][1], 4))
-      #print(top_three[1][0])
-      #print(round(top_three[1][1], 4))
-
       row_array.append(str(top_three[2][0]))
       row_array.append(round(top_three[2][1], 4))
-      #print(top_three[0][0] + " | " + top_three[1][0] + " | " + top_three[2][0])
-      #print(round(top_three[2][1], 4))
 
     except:
       for x in range(0, 8 - len(row_array)):
@@ -215,7 +217,7 @@ def word2vec():
     for f in fashion_words:
       try:
         #cos = model_1.similarity("/en/" + w[0], "/en/" + f[0])
-        cos = model_1.similarity(w[0], f[0])
+        cos = model_1.similarity(w[0].lower(), f[0].lower())
         if cos > sim:
           sim = cos
           word = f[0]
@@ -235,8 +237,10 @@ def word2vec():
     tab_array.append(row_array)
     row_array = []
 
+  ######################################################################################################################
+  #                                           Creating a Table                                                         #
+  ######################################################################################################################
 
-  # Creating a Table
   tab = tt.Texttable()
   tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
 
@@ -253,11 +257,17 @@ def word2vec():
   #tab.set_deco(tab.HEADER | tab.VLINES)
   tab.set_chars(['-','|','+','='])
 
+  ######################################################################################################################
+  #                                         End Creating a Table                                                       #
+  ######################################################################################################################
+
   print
   print "###########################################################################################################################"
   print "#                                            Textmining with Word2Vec and NLTK                                            #"
   print "###########################################################################################################################"
   print tab.draw()
+
+  return "TEST"
 
 
 def custom_public_function_reachable_from_outside():

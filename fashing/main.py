@@ -6,6 +6,7 @@ from Tkinter import *
 import ttk
 # import subprocess as sub
 # import fashing.mod.graph as graph
+import mod.word2vec as w2v
 
 
 def main():
@@ -16,6 +17,8 @@ def main():
     root = Tk()
     app = Application(master=root)
     app.mainloop()
+
+    print(w2v.word2vec())
 
 
 class Application(Frame):
