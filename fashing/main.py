@@ -13,8 +13,6 @@ def main():
     # style = ttk.Style()
     # style.configure("TButton", padding=6, relief="flat")
 
-    # print(w2v.word2vec())
-
     root = tk.Tk()
     Application(master=root).pack(side="top", fil="both", expand=True)
     root.mainloop()
@@ -78,18 +76,18 @@ class Application(tk.Frame):
         x_range = max_x - min_x
         y_range = max_y - min_y
 
-        grid_resolution = 50
+        grid_sections = 3
 
         # create a grid
-        for i in xrange(min_x, max_x, grid_resolution):
-            canvas.create_line(i, min_y, i, max_y)
+        for i in xrange(min_x, max_x, (x_range / grid_sections)):
+            canvas.create_line(i, min_y, i, max_y, dash=(5, 5), fill="#ccc")
 
-        for i in xrange(max_y, min_y, -grid_resolution):
-            canvas.create_line(min_x, i, max_x, i)
+        for i in xrange(max_y, min_y, -(y_range / grid_sections)):
+            canvas.create_line(min_x, i, max_x, i, dash=(5, 5), fill="#ccc")
 
         # create closing grid lines
-        canvas.create_line(max_x, min_y, max_x, max_y)
-        canvas.create_line(min_x, min_y, max_x, min_y)
+        canvas.create_line(max_x, min_y, max_x, max_y, dash=(5, 5), fill="#ccc")
+        # canvas.create_line(min_x, min_y, max_x, min_y)
 
         # create the graph axes
         canvas.create_line(min_x, max_y, min_x, min_y, fill="#333", width=2)  # y axis
@@ -103,6 +101,8 @@ class Application(tk.Frame):
             [.6, .9],
             [1, 1]
         ]
+
+        # print(w2v.word2vec())
 
         pre = []  # temp value for the previous iteration
         for val in self.graph_data:
