@@ -59,8 +59,8 @@ class Application(tk.Frame):
         return "TODO"
 
     def create_canvas(self):
-        self.CANVAS_WIDTH = 500
-        self.CANVAS_HEIGHT = 300
+        self.CANVAS_WIDTH = 1000
+        self.CANVAS_HEIGHT = 1000
 
         self.CANVAS = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT, background='white')
         self.CANVAS.pack()
@@ -68,7 +68,7 @@ class Application(tk.Frame):
 
     def draw_canvas(self):
         canvas = self.CANVAS
-        padding = 10
+        padding = 50
         min_y = 0 + padding
         min_x = 0 + padding
         max_y = self.CANVAS_HEIGHT - padding
@@ -87,12 +87,15 @@ class Application(tk.Frame):
 
         # create closing grid lines
         canvas.create_line(max_x, min_y, max_x, max_y, dash=(5, 5), fill="#ccc")
-        # canvas.create_line(min_x, min_y, max_x, min_y)
+        canvas.create_line(min_x, min_y, max_x, min_y, dash=(5, 5), fill="#ccc")
 
         # create the graph axes
         canvas.create_line(min_x, max_y, min_x, min_y, fill="#333", width=2)  # y axis
         canvas.create_line(min_x, max_y, max_x, max_y, fill="#333", width=2)  # x axis
         canvas.create_polygon((10, 20, 30, 40, 20, 30), fill="#333")  # triangle not working
+
+        # create the axis texts
+        canvas.create_text(min_x - 10, max_y + 10, text="0", font=("Myriad Pro", 24))
 
         self.graph_data = [
             [0, 0],
