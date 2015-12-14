@@ -76,7 +76,7 @@ class Application(tk.Frame):
         x_range = max_x - min_x
         y_range = max_y - min_y
 
-        grid_sections = 3
+        grid_sections = 5
 
         # create a grid
         for i in xrange(min_x, max_x, (x_range / grid_sections)):
@@ -102,15 +102,15 @@ class Application(tk.Frame):
             [1, 1]
         ]
 
-        # print(w2v.word2vec())
+        print(w2v.word2vec())
 
         pre = []  # temp value for the previous iteration
         for val in self.graph_data:
             if pre:
                 x_start = pre[0] * x_range + min_x
-                y_start = pre[1] * y_range + min_y
+                y_start = (1 - pre[1]) * y_range + min_y
                 x_end = val[0] * x_range + min_x
-                y_end = val[1] * y_range + min_y
+                y_end = (1 - val[1]) * y_range + min_y
                 canvas.create_line(x_start, y_start, x_end, y_end, fill="#F00")
 
             pre = val
