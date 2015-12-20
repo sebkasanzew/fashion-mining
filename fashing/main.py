@@ -143,8 +143,9 @@ class Application(tk.Frame):
         max_x = self.CANVAS_WIDTH - padding
         x_range = max_x - min_x
         y_range = max_y - min_y
-        max_value_x = 1
-        max_value_y = 1
+
+        x_headline = "Precision"
+        y_headline = "Recall"
 
         grid_sections = 5
 
@@ -164,7 +165,7 @@ class Application(tk.Frame):
 
         for i in xrange(max_y, min_y, -(y_range // grid_sections)):
             axis_label = (i - padding) / y_range
-            # print "( {0} - {1} ) / {2} = {3}".format(i, padding, x_range, axis_label)
+            # print "( {0} - {1} ) / {2} = {3}".format(i, padding, y_range, axis_label)
 
             if axis_label < 1.:
                 axis_label = "{0}".format(axis_label)[1:]
@@ -183,9 +184,19 @@ class Application(tk.Frame):
         canvas.create_line(min_x, max_y, max_x, max_y, fill=COLOR_GRAY_DARK, width=2)  # x axis
         canvas.create_polygon((10, 20, 30, 40, 20, 30), fill=COLOR_GRAY_DARK)  # triangle not working
 
+        # create the axis headlines
+        x_headline_horizontal_pos = (max_x + padding) / 2
+        x_headline_vertical_pos = max_y + FONT_GRAPH[1] + padding / 2
+        y_headline_horizontal_pos = min_x - FONT_GRAPH[1] - padding / 2
+        y_headline_vertical_pos = (max_y + padding) / 2
+
+        canvas.create_text(x_headline_horizontal_pos, x_headline_vertical_pos, text=x_headline, font=FONT_GRAPH)
+        canvas.create_text(y_headline_horizontal_pos, y_headline_vertical_pos, text=y_headline, font=FONT_GRAPH, angle=90)
+
         # create the axis texts
         canvas.create_text(min_x - FONT_GRAPH[1], max_y + FONT_GRAPH[1], text="0", font=FONT_GRAPH)
 
+        # draw the line in the graph
         pre = []  # temp value for the previous iteration
         for val in self.graph_data:
             if pre:
