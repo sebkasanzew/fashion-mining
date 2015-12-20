@@ -1,17 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 import Tkinter as tk
 import ttk
 import sys
 # import subprocess as sub
 # import fashing.mod.graph as graph
+import mod.util as util
 import mod.word2vec as w2v
 
 COLOR_WHITE = '#FFF'
 COLOR_GRAY_LIGHT = "#CCC"
 COLOR_GRAY_DARK = "#333"
 COLOR_LINE_ONE = "#F00"
+
+WIDTH_LINE_ONE = 5
 
 FONT_MENU = ("Myriad Pro", 14)
 FONT_GRAPH = ("Myriad Pro", 24)
@@ -132,22 +136,43 @@ class Application(tk.Frame):
 
     def draw_canvas(self):
         canvas = self.CANVAS
-        padding = 50
+        padding = 100
         min_y = 0 + padding
         min_x = 0 + padding
         max_y = self.CANVAS_HEIGHT - padding
         max_x = self.CANVAS_WIDTH - padding
         x_range = max_x - min_x
         y_range = max_y - min_y
+        max_value_x = 1
+        max_value_y = 1
 
         grid_sections = 5
 
-        # create a grid
-        for i in xrange(min_x, max_x, (x_range / grid_sections)):
-            canvas.create_line(i, min_y, i, max_y, dash=(5, 5), fill=COLOR_GRAY_LIGHT)
+        # create a grid and the axis labels
+        for i in xrange(min_x, max_x, (x_range // grid_sections)):
+            axis_label = (i - padding) / x_range
+            # print "( {0} - {1} ) / {2} = {3}".format(i, padding, x_range, axis_label)
+            axis_label = 1 - axis_label
 
-        for i in xrange(max_y, min_y, -(y_range / grid_sections)):
+            if axis_label < 1.:
+                axis_label = "{0}".format(axis_label)[1:]
+            else:
+                axis_label = util.format_number(axis_label)
+
+            canvas.create_line(i, min_y, i, max_y, dash=(5, 5), fill=COLOR_GRAY_LIGHT)
+            canvas.create_text(min_x - FONT_GRAPH[1], i, text=axis_label, font=FONT_GRAPH)
+
+        for i in xrange(max_y, min_y, -(y_range // grid_sections)):
+            axis_label = (i - padding) / y_range
+            # print "( {0} - {1} ) / {2} = {3}".format(i, padding, x_range, axis_label)
+
+            if axis_label < 1.:
+                axis_label = "{0}".format(axis_label)[1:]
+            else:
+                axis_label = util.format_number(axis_label)
+
             canvas.create_line(min_x, i, max_x, i, dash=(5, 5), fill=COLOR_GRAY_LIGHT)
+            canvas.create_text(i, max_y + FONT_GRAPH[1], text=axis_label, font=FONT_GRAPH)
 
         # create closing grid lines
         canvas.create_line(max_x, min_y, max_x, max_y, dash=(5, 5), fill=COLOR_GRAY_LIGHT)
@@ -159,7 +184,7 @@ class Application(tk.Frame):
         canvas.create_polygon((10, 20, 30, 40, 20, 30), fill=COLOR_GRAY_DARK)  # triangle not working
 
         # create the axis texts
-        canvas.create_text(min_x - 10, max_y + 10, text="0", font=FONT_GRAPH)
+        canvas.create_text(min_x - FONT_GRAPH[1], max_y + FONT_GRAPH[1], text="0", font=FONT_GRAPH)
 
         pre = []  # temp value for the previous iteration
         for val in self.graph_data:
@@ -168,7 +193,7 @@ class Application(tk.Frame):
                 y_start = (1 - pre[1]) * y_range + min_y
                 x_end = val[0] * x_range + min_x
                 y_end = (1 - val[1]) * y_range + min_y
-                canvas.create_line(x_start, y_start, x_end, y_end, fill=COLOR_LINE_ONE)
+                canvas.create_line(x_start, y_start, x_end, y_end, fill=COLOR_LINE_ONE, width=WIDTH_LINE_ONE)
 
             pre = val
 
