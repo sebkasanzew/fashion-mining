@@ -11,7 +11,7 @@ import mod.word2vec as w2v
 
 COLOR_WHITE = '#FFF'
 COLOR_BLACK = '#000'
-COLOR_GRAY_LIGHT = "#CCC"
+COLOR_GRAY_LIGHT = "#AAA"
 COLOR_GRAY_DARK = "#333"
 COLOR_LINE_ONE = "#F00"
 
@@ -22,6 +22,7 @@ CANVAS_GRID_COLOR = COLOR_GRAY_LIGHT
 
 FONT_MENU = ("Myriad Pro", 14)
 FONT_GRAPH = ("Myriad Pro", 24)
+FONT_GRAPH_HEADLINE = ("Myriad Pro", 30)
 
 
 def main():
@@ -64,6 +65,7 @@ class Application(tk.Frame):
     canvas_grid_sections = 5
     canvas_x_headline = "Recall"
     canvas_y_headline = "Precision"
+    graph_headline = "Precision/Recall Graph"
 
     def __init__(self, master=None, *args, **kwargs):
         self.CANVAS_WIDTH = 1000
@@ -150,11 +152,12 @@ class Application(tk.Frame):
         self.draw_canvas()
 
     def update_canvas(self, padding=canvas_padding, x_headline=canvas_x_headline, y_headline=canvas_y_headline,
-                      grid_sections=canvas_grid_sections):
+                      graph_headline=graph_headline, grid_sections=canvas_grid_sections):
         canvas_padding = padding
         canvas_x_headline = x_headline
         canvas_y_headline = y_headline
         canvas_grid_sections = grid_sections
+        graph_headline = graph_headline
 
         self.CANVAS.delete("all")
         self.CANVAS.config(width=self.CANVAS_WIDTH,
@@ -164,6 +167,7 @@ class Application(tk.Frame):
         self.draw_canvas(padding=canvas_padding,
                          x_headline=canvas_x_headline,
                          y_headline=canvas_y_headline,
+                         graph_headline=graph_headline,
                          grid_sections=canvas_grid_sections)
 
     def update_canvas_dimensions(self):
@@ -171,7 +175,7 @@ class Application(tk.Frame):
         self.draw_canvas()
 
     def draw_canvas(self, padding=canvas_padding, x_headline=canvas_x_headline, y_headline=canvas_y_headline,
-                    grid_sections=canvas_grid_sections):
+                    graph_headline=graph_headline, grid_sections=canvas_grid_sections):
         canvas = self.CANVAS
         min_y = 0 + padding
         min_x = 0 + padding
@@ -225,6 +229,10 @@ class Application(tk.Frame):
         canvas.create_text(x_headline_horizontal_pos, x_headline_vertical_pos, text=x_headline, font=FONT_GRAPH)
         canvas.create_text(y_headline_horizontal_pos, y_headline_vertical_pos, text=y_headline, font=FONT_GRAPH,
                            angle=90)
+
+        # create graph headline
+        canvas.create_text((max_x + padding) / 2, min_y - padding / 2, text=graph_headline,
+                           font=FONT_GRAPH_HEADLINE)
 
         # create the axis texts
         canvas.create_text(min_x - FONT_GRAPH[1], max_y + FONT_GRAPH[1], text="0", font=FONT_GRAPH)
