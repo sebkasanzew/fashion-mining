@@ -13,7 +13,7 @@ COLOR_WHITE = '#FFF'
 COLOR_BLACK = '#000'
 COLOR_GRAY_LIGHT = "#AAA"
 COLOR_GRAY_DARK = "#333"
-COLOR_LINE_ONE = "#F00"
+COLOR_LINE_ONE = "#ff6900"
 
 WIDTH_LINE_ONE = 5
 CANVAS_BACKGROUND_COLOR = COLOR_WHITE
@@ -60,6 +60,21 @@ class Statusbar(tk.Frame):
         # self.CONSOLE_TEXT.insert(END, self.output)
 
 
+class MainArea(tk.Frame):
+    def __init__(self, master=None, *args, **kwargs):
+        tk.Frame.__init__(self, master, *args, **kwargs)
+        # self.grid()
+
+        self.WORD_INPUT = self.make_entry("Search", width=10)
+
+    def make_entry(self, caption, width=None, **kwargs):
+        tk.Label(self, text=caption, font=FONT_MENU).grid(row=1, column=1, sticky="nesw")
+        entry = tk.Entry(self, **kwargs)
+        if width:
+            entry.config(width=width)
+        return entry
+
+
 class Application(tk.Frame):
     canvas_padding = 100
     canvas_grid_sections = 5
@@ -87,6 +102,7 @@ class Application(tk.Frame):
 
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.statusbar = Statusbar(self)
+        self.main_area = MainArea(self)
 
         # self.create_widgets()
         self.create_canvas()
@@ -101,6 +117,8 @@ class Application(tk.Frame):
 
         self.master.title(self.TITLE)
         self.master.config(menu=self.menubar)
+
+        self.main_area.pack(side="left", fill="y")
 
         # self.statusbar.pack(side="bottom", fill="x")
 
@@ -148,7 +166,7 @@ class Application(tk.Frame):
     def create_canvas(self):
         self.CANVAS = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT,
                                 background=CANVAS_BACKGROUND_COLOR)
-        self.CANVAS.pack()
+        self.CANVAS.pack(side="right")
         self.draw_canvas()
 
     def update_canvas(self, padding=canvas_padding, x_headline=canvas_x_headline, y_headline=canvas_y_headline,
