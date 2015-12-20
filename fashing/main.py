@@ -4,6 +4,7 @@
 from __future__ import division
 import Tkinter as tk
 import ttk
+import tkFileDialog
 import sys
 # import subprocess as sub
 import mod.util as util
@@ -122,11 +123,25 @@ class Application(tk.Frame):
 
         # self.statusbar.pack(side="bottom", fill="x")
 
-    def open_file(self):
-        print "command: file open"
+    def open_file(self, **kwargs):
+        path = tkFileDialog.askopenfilename(**kwargs)
+        return util.open_json(path)
+
+    def open_json(self):
+        file_json_options = {
+            'filetypes': [("json files", "*.json")],
+            'title': 'Choose the JSON with the documents'
+        }
+
+        path = tkFileDialog.askopenfilename(**file_json_options)
+        return util.open_json(path)
 
     def open_save(self):
         print "command: file save"
+
+    def export_html(self):
+        data = self.open_json()
+        util.export_html(data)
 
     def about(self):
         print "command: about"
@@ -140,6 +155,8 @@ class Application(tk.Frame):
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.file_menu.add_command(label="Open", command=lambda: self.open_file())
         self.file_menu.add_command(label="Save", command=lambda: self.open_save())
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit)
 
