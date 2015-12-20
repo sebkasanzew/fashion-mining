@@ -58,9 +58,9 @@ class Statusbar(tk.Frame):
 
 class Application(tk.Frame):
     def __init__(self, master=None, *args, **kwargs):
-        self.CANVAS = None
         self.CANVAS_WIDTH = 1000
         self.CANVAS_HEIGHT = 1000
+        self.CANVAS = None
 
         self.TITLE = "Fashing"
 
@@ -78,10 +78,14 @@ class Application(tk.Frame):
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.statusbar = Statusbar(self)
 
+        # self.create_widgets()
+        self.create_canvas()
+
         # menubar and sub menus
         self.menubar = None
         self.file_menu = None
-        self.analyse = None
+        self.analyse_menu = None
+        self.graph_menu = None
         self.help_menu = None
         self.create_menu_bar()
 
@@ -89,9 +93,6 @@ class Application(tk.Frame):
         self.master.config(menu=self.menubar)
 
         # self.statusbar.pack(side="bottom", fill="x")
-
-        # self.create_widgets()
-        self.create_canvas()
 
     def open_file(self):
         print "command: file open"
@@ -114,14 +115,19 @@ class Application(tk.Frame):
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit)
 
-        self.analyse = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.analyse.add_command(label="Calculate Precision/Recall", command=calc_precision_recall)
+        self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.analyse_menu.add_command(label="Calculate Precision/Recall", command=calc_precision_recall)
+
+        self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
+        self.graph_menu.add_command(label="Simple Mode", command=lambda: self.update_canvas(grid_sections=5))
 
         self.help_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.help_menu.add_command(label="About", command=self.about)
 
         self.menubar.add_cascade(label="File", menu=self.file_menu)
-        self.menubar.add_cascade(label="Analyse", menu=self.analyse)
+        self.menubar.add_cascade(label="Analyse", menu=self.analyse_menu)
+        self.menubar.add_cascade(label="Graph", menu=self.graph_menu)
         self.menubar.add_cascade(label="Help", menu=self.help_menu)
 
     def create_widgets(self):
@@ -134,20 +140,19 @@ class Application(tk.Frame):
         self.CANVAS.pack()
         self.draw_canvas()
 
-    def draw_canvas(self):
+    def update_canvas(self, grid_sections):
+        self.CANVAS.delete("all")
+        self.draw_canvas(grid_sections=grid_sections)
+
+    def draw_canvas(self, padding=100, x_headline="Precision", y_headline="Recall", grid_sections=5):
         canvas = self.CANVAS
-        padding = 100
         min_y = 0 + padding
         min_x = 0 + padding
         max_y = self.CANVAS_HEIGHT - padding
         max_x = self.CANVAS_WIDTH - padding
         x_range = max_x - min_x
         y_range = max_y - min_y
-
-        x_headline = "Precision"
-        y_headline = "Recall"
-
-        grid_sections = 5
+        graph_data = self.graph_data
 
         # create a grid and the axis labels
         for i in xrange(min_x, max_x, (x_range // grid_sections)):
@@ -198,7 +203,7 @@ class Application(tk.Frame):
 
         # draw the line in the graph
         pre = []  # temp value for the previous iteration
-        for val in self.graph_data:
+        for val in graph_data:
             if pre:
                 x_start = pre[0] * x_range + min_x
                 y_start = (1 - pre[1]) * y_range + min_y
