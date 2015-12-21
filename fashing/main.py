@@ -86,8 +86,8 @@ class Application(tk.Frame):
     graph_headline = "Precision/Recall Graph"
 
     def __init__(self, master=None, *args, **kwargs):
-        self.CANVAS_WIDTH = 1000
-        self.CANVAS_HEIGHT = 1000
+        self.CANVAS_WIDTH = 600
+        self.CANVAS_HEIGHT = 600
         self.CANVAS = None
 
         self.TITLE = "Fashing"
@@ -96,11 +96,27 @@ class Application(tk.Frame):
 
         # Test Data
         self.graph_data = [
-            [0, 0],
-            #[.2, .1],
-            #[.4, .5],
-            #[.6, .9],
-            #[1, 1]
+            [0, 1],
+            [.05, .95],
+            [.1, .9],
+            [.15, .85],
+            [.2, .8],
+            [.25, .75],
+            [.3, .7],
+            [.35, .65],
+            [.4, .6],
+            [.45, .55],
+            [.5, .5],
+            [.55, .45],
+            [.6, .4],
+            [.65, .35],
+            [.7, .3],
+            [.75, .25],
+            [.8, .2],
+            [.85, .15],
+            [.9, .1],
+            [.95, .05],
+            [1, 0],
         ]
 
         tk.Frame.__init__(self, master, *args, **kwargs)
@@ -120,7 +136,7 @@ class Application(tk.Frame):
         self.master.title(self.TITLE)
         self.master.config(menu=self.menubar)
 
-        self.main_area.pack(side="left", fill="both")
+        # self.main_area.pack(side="left", fill="both")
 
         # self.statusbar.pack(side="bottom", fill="x")
 
@@ -160,6 +176,9 @@ class Application(tk.Frame):
         path = self.select_dir(title="Select where to save the HTML file")
         self.save_file(path=path, text=util.create_html(data, tags))
 
+    def calc_precision_recall(self):
+        self.graph_data = util.compare_docs(self.open_json("Select tagged data"), self.open_json("Select mined data"))
+
     def about(self):
         print "command: about"
 
@@ -181,7 +200,8 @@ class Application(tk.Frame):
         self.file_menu.add_command(label="Exit", command=self.quit)
 
         self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.analyse_menu.add_command(label="Calculate Precision/Recall", command=calc_precision_recall)
+        self.analyse_menu.add_command(label="Calculate Precision/Recall", command=execute_w2v)
+        self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
         self.analyse_menu.add_command(label="Compare", command=lambda: self.compare_docs())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
@@ -301,7 +321,7 @@ class Application(tk.Frame):
             pre = val
 
 
-def calc_precision_recall():
+def execute_w2v():
     print(w2v.word2vec())
 
 

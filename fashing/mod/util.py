@@ -39,15 +39,14 @@ def merge_intersected_indicies(array_one=None, array_two=None):
 
 
 def compare_docs(document1=None, document2=None):
-    total = 0
-    false_positive = 0
-    true_positive = 0
+    compared = []
 
     if document1 is None:
         document1 = [{"entities": ["a", "b"], "_id": "b1", "indicies": [[[1, 2], [4, 6]], [[8, 10]]]}]
 
     if document2 is None:
-        document2 = [{"entities": ["a", "b", "c", "d"], "_id": "b1", "cosDist": [.7, .9, .2, .4], "indicies": [[[14, 18]], [[1, 2], [4, 6]], [[8, 10]], [[11, 13], [14, 16]]]}]
+        document2 = [{"entities": ["a", "b", "c", "d"], "_id": "b1", "cosDist": [.7, .9, .2, .4],
+                      "indicies": [[[14, 18]], [[1, 2], [4, 6]], [[8, 10]], [[11, 13], [14, 16]]]}]
 
     for doc2 in document2:
         print doc2
@@ -60,12 +59,35 @@ def compare_docs(document1=None, document2=None):
     for doc1 in document1:
         for doc2 in document2:
             if doc1["_id"] == doc2["_id"]:
-                compared = compare_indices(doc1["indicies"], doc2["indicies"])
+                compared.append(compare_indices(doc1["indicies"], doc2["indicies"]))
                 print "compared", compared
 
-    # calc_precision_recall()
+    for i in drange(0, 1, 0.05):
+        calc_precision_recall(i, compared)
 
-    return
+    return [
+        [0, 1],
+        [.05, .05],
+        [.1, .1],
+        [.15, .15],
+        [.2, .2],
+        [.25, .25],
+        [.3, .3],
+        [.35, .35],
+        [.4, .4],
+        [.45, .45],
+        [.5, .5],
+        [.55, .55],
+        [.6, .6],
+        [.65, .65],
+        [.7, .7],
+        [.75, .75],
+        [.8, .8],
+        [.85, .85],
+        [.9, .9],
+        [.95, .95],
+        [1, 0],
+    ]
 
 
 def compare_indices(indices1, indices2):
@@ -80,14 +102,37 @@ def compare_indices(indices1, indices2):
 
     doc_compare = []
 
-    for i in indices1:
-        for j in indices2:
-            if indices2:
-                false_negative = 0
-                false_positive = 0
-                true_positive = 0
-                # result = {"cos": j[""], "count": [false_negative, false_positive, true_positive]}
-            # doc_compare.append(result)
+    def check_fp(k, l):
+        if l not in k:
+            return True
+        return False
+
+    def check_tp(k, l):
+        if l in k:
+            return True
+        return False
+
+    def check_fn(k, l):
+        if k not in l:
+            return True
+        return False
+
+    for i, val in enumerate(indices1):
+        print "i:", i
+        for j, val2 in enumerate(indices2):
+            print "j:", j
+            print indices2
+            result = {}
+            if check_fn(indices1[i], indices2[j]):
+                result = {"cos": indices2[j][2], "count": [1, 0, 0]}
+
+            if check_fp(indices1[i], indices2[j]):
+                result = {"cos": indices2[j][2], "count": [0, 1, 0]}
+
+            if check_tp(indices1[i], indices2[j]):
+                result = {"cos": indices2[j][2], "count": [0, 0, 1]}
+
+            doc_compare.append(result)
 
     return doc_compare
 
@@ -95,8 +140,11 @@ def compare_indices(indices1, indices2):
 def calc_precision_recall(cos, data):
     filtered = []
 
-    # for i, val in enumerate(data):
-        # if data["cos"] >
+    for i, val in enumerate(data):
+        print "############### DATA", data
+        if float(data[0][0][i][2]) > cos:
+            r = calc_recall(data[0][0]["count"][2], data["count"][0])
+            p = calc_precision(data[0][0]["count"][2], data["count"][1])
 
 
 def extract_indices(array=None):
@@ -207,12 +255,19 @@ def create_html(data=None, tags=None):
     # print "<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True)
     return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
 
-def calcPrecision(tp,fp):
 
+def calc_precision(tp, fp):
     precision = tp / (tp + fp)
     return precision
 
-def calcRecall(tp,fn):
 
+def calc_recall(tp, fn):
     recall = tp / (tp + fn)
     return recall
+
+
+def drange(start, stop, step):
+    r = start
+    while r < stop:
+        yield r
+        r += step
