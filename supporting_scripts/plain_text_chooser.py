@@ -6,7 +6,7 @@ import re
 import pprint
 
 with open("../data/plain_text_optimized_eng_filtered.json", "r") as text_file:
-    docs = text_file.readlines()
+    docs = json.load(text_file)
 
 with open("../data/entities.txt", "r") as text_file:
     dict = text_file.readlines()
@@ -22,14 +22,12 @@ with open("../data/example_docs_tags.json", "a") as example_docs_tags:
 dict = eval(dict[0])
 number_of_documents = 0
 max_documents = 50
-indicies_data = []
-example_data = []
 
 for doc in docs:
     number_of_entities = 0
 
-    json_data = json.loads(doc)
-    text = json_data["extracted_text"]
+    text = doc["extracted_text"].replace('\n',' ')
+    doc["extracted_text"] = text
 
     entities = []
     indicies = []
@@ -39,13 +37,19 @@ for doc in docs:
             number_of_entities += 1
             i_tmp = []
 
+            contains = False;
             for m in re.finditer(entity, text):
-                i_tmp.append([m.start(), m.end()])
+                if not text[m.start()-1].isalpha() and not text[m.end()].isalpha():
+                    contains = True
+                    i_tmp.append([m.start(), m.end()])
 
-            entities.append(str(entity))
-            indicies.append(i_tmp)
 
-    tmp = {"_id" : json_data["_id"]["$oid"], "entities": entities, "indicies": indicies}
+
+            if contains:
+                entities.append(entity.encode("utf-8"))
+                indicies.append(i_tmp)
+
+    tmp = {"_id" : doc["_id"]["$oid"], "entities": entities, "indicies": indicies}
 
     pre = ""
     suf = ""
@@ -59,12 +63,10 @@ for doc in docs:
         else:
             suf = ","
 
-        number_of_documents+=1
-        indicies_data.append(tmp)
-        example_data.append(json.dumps(json_data))
+        number_of_documents += 1
 
         with open("../data/example_docs.json", "a") as example_docs:
-            example_docs.writelines(pre + str(json.dumps(json_data)) + suf + "\n")
+            example_docs.writelines(pre + str(json.dumps(doc)) + suf + "\n")
         with open("../data/example_docs_tags.json", "a") as example_docs_tags:
             example_docs_tags.writelines(pre + str(json.dumps(tmp)) + suf + "\n")
         #print json_data
