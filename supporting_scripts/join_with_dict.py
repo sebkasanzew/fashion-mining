@@ -34,7 +34,7 @@ with open("../data/test.json", "a") as myfile:
                     entity_counter[entity] = 1
 
         if contains:
-            myfile.write(line)
+            myfile.write(line + ",")
 
         i+=1
         print str(i) + "/" + str(l)
