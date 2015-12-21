@@ -59,7 +59,6 @@ for doc in docs:
         else:
             suf = ","
 
-
         number_of_documents+=1
         indicies_data.append(tmp)
         example_data.append(json.dumps(json_data))
