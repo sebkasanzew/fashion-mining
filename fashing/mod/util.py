@@ -206,3 +206,13 @@ def create_html(data=None, tags=None):
     # pretty string
     # print "<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True)
     return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
+
+def calcPrecision(tp,fp):
+
+    precision = tp / (tp + fp)
+    return precision
+
+def calcRecall(tp,fn):
+
+    recall = tp / (tp + fn)
+    return recall

@@ -90,11 +90,13 @@ def nltk_tokenizing(document):
 
     number_of_documents += 1
 
-    if number_of_documents == max_documents:
-      break
 
     with open(PROJECT_DIR + "data/example_docs_tokenized.json", "a") as example_docs_tags:
       example_docs_tags.writelines(pre + json.dumps(tmp).encode('utf-8') + suf + "\n")
+
+    if number_of_documents == max_documents:
+      break
+
 
 
 nltk_tokenizing(text)
