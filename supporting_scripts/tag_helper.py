@@ -22,7 +22,10 @@ counter = 0
 for data in tags_man:
     indicies = []
 
-    text = docs[counter]["extracted_text"]
+    if docs[counter]["extracted_text"] == []:
+        text = [""]
+    else:
+        text = docs[counter]["extracted_text"]
 
     if len(data["entities"]) != 0:
 
@@ -30,13 +33,13 @@ for data in tags_man:
             #print data["entities"][x]
             i_tmp = []
             for m in re.finditer(data["entities"][x], text):
-                i_tmp.append([m.start(),m.end()])
+                i_tmp.append([m.start(), m.end()])
             indicies.append(i_tmp)
 
         data["indicies"] = indicies
 
     else:
-        data["indicies"] = indicies
+        data["indicies"] = [[[0, 0]]]
 
     counter +=1
 
