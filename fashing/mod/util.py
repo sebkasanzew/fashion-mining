@@ -28,7 +28,7 @@ def merge_intersected_indicies(array_one=None, array_two=None):
     if array_one[1] >= array_two[0]:
         return [array_one[0], array_two[1]]
     else:
-        return array_one, array_two
+        return False
 
 
 def extract_indicies(array=None):
@@ -83,6 +83,19 @@ def export_html(path=str()):
     lxml.html.open_in_browser(path)
 
 
+def replace_in_list(i, array):
+    """careful... maybe this does not work"""
+    if i < len(array):
+        value = merge_intersected_indicies(array[i], array[i + 1])
+        if value:
+            array[i] = value
+            del array[i + 1]
+
+        replace_in_list(i + 1, array)
+    else:
+        return array
+
+
 def create_html(data=None, tags=None):
     if tags is None:
         tags = {}
@@ -100,11 +113,20 @@ def create_html(data=None, tags=None):
 
         for tag in tags:
             if tag["_id"] == doc_id:
-                # print uni2utf(tag["entities"])
                 indicies = sort_2d_array(extract_indicies(tag["indicies"]))
-                # print(indicies)
 
-                # print indicies
+                # remove all intersecting indicies
+                restart = True
+                while restart:
+                    for i, val in enumerate(indicies):
+                        if i < len(indicies) - 1:
+                            value = merge_intersected_indicies(indicies[i], indicies[i + 1])
+                            if value:
+                                indicies[i] = value
+                                del indicies[i + 1]
+                                break
+                        else:
+                            restart = False
 
                 added = 0
                 for index in indicies:
