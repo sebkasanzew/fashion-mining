@@ -139,6 +139,8 @@ class Application(tk.Frame):
 
     def save_file(self, path, text):
         with open(path, "a") as s_file:
+            s_file.seek(0)
+            s_file.truncate()
             s_file.write(text)
 
     def save_graph(self):
@@ -164,6 +166,9 @@ class Application(tk.Frame):
     def quit(self):
         sys.exit(0)
 
+    def compare_docs(self):
+        util.compare_docs()
+
     def create_menu_bar(self):
         self.menubar = tk.Menu(self, font=FONT_MENU)
 
@@ -177,6 +182,7 @@ class Application(tk.Frame):
 
         self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=calc_precision_recall)
+        self.analyse_menu.add_command(label="Compare", command=lambda: self.compare_docs())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
