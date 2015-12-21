@@ -31,12 +31,15 @@ def nltk_tokenizing(document):
   # reads first json
   # json_data = json.loads(document)
   x = 0
+  #for x in range(44, 45):
   for data in document:
-    print(x)
-    x += 1
-    print(data)
+
+    #data = document[x]
     extracted_text = data["extracted_text"]
     sentences = nltk.sent_tokenize(extracted_text)
+
+    print(x)
+    x += 1
 
     entities = []
     indicies = []
@@ -54,10 +57,23 @@ def nltk_tokenizing(document):
 
     for word in dictionary:
       i_tmp = []
-      for m in re.finditer(dictionary[word], extracted_text):
-        i_tmp.append([m.start(), m.end()])
-      entities.append(dictionary[word].encode('utf-8'))
-      indicies.append(i_tmp)
+      contains = False
+      if re.match(".*\|.*", dictionary[word]) is None:
+
+        for m in re.finditer(dictionary[word], extracted_text):
+          try:
+            if not extracted_text[m.start()-1].isalpha() and not extracted_text[m.end()].isalpha():
+              contains = True
+              i_tmp.append([m.start(), m.end()])
+          except:
+            print(data)
+            print("The word: " + dictionary[word] + " contains pipes and will not be processed")
+            #print(extracted_text[m.start()-1])
+            #print(tuple(m))
+
+        if contains:
+          entities.append(dictionary[word].encode('utf-8'))
+          indicies.append(i_tmp)
 
     tmp = {"_id": data["_id"]["$oid"], "entities": entities, "indicies": indicies}
 
