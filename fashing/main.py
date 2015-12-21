@@ -66,11 +66,11 @@ class MainArea(tk.Frame):
         tk.Frame.__init__(self, master, *args, **kwargs)
         # self.grid()
 
-        self.WORD_INPUT = self.make_entry("Search", width=10)
+        self.WORD_INPUT = self.make_entry("Search: ", width=20)
 
     def make_entry(self, caption, width=None, **kwargs):
-        tk.Label(self, text=caption, font=FONT_MENU).grid(row=0, column=0, sticky="e")
-        entry = tk.Entry(self, **kwargs)
+        tk.Label(self, text=caption, font=FONT_GRAPH).grid(row=0, column=0, sticky="e")
+        entry = tk.Entry(self, font=FONT_GRAPH, **kwargs)
         if width:
             entry.config(width=width)
 
