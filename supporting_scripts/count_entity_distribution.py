@@ -3,8 +3,9 @@
 
 import json
 import csv
+import re
 
-with open("../data/example_docs.json", "r") as text_file:
+with open("../data/plain_text_optimized_eng_filtered.json", "r") as text_file:
     docs = json.load(text_file)
 
 with open("../data/entities.txt", "r") as text_file:
@@ -23,13 +24,14 @@ for doc in docs:
     for entity in dict:
         if entity in text:
 
-            if entity in counted_entities.keys():
-                counted_entities[entity] = counted_entities[entity] + 1
-            else:
-                counted_entities[entity] = 1
+            for m in re.finditer(entity, text):
+                if not text[m.start()-1].isalpha() and not text[m.end()].isalpha():
+                    if entity in counted_entities.keys():
+                        counted_entities[entity] = counted_entities[entity] + 1
+                    else:
+                        counted_entities[entity] = 1
 
 sorted_entities = sorted(counted_entities.iterkeys(), key=lambda k: counted_entities[k], reverse=True)
-
 
 writer = csv.writer(open('../data/entity_distribution.csv', 'wb'))
 
