@@ -15,82 +15,31 @@ import numpy as np
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-#Global Paths TODO: improvement of dirs
-PROJECT_DIR = os.path.dirname(__file__)[:-11]
-#GLOVE_DIR = '/opt/word2vec/common_words'
+# Global Paths TODO: improvement of dirs
+PROJECT_DIR = os.path.dirname(__file__) + "/../../"
+# GLOVE_DIR = '/opt/word2vec/common_words'
 GLOVE_DIR = PROJECT_DIR + "data/tmp/"
+
 
 def main():
   """The main test executable"""
   # Here goes the code from below
   # Create Dictionary
 
-  path = '/tmp/'
-
-  # read data file and put every json into an array
-  with open("../../data/plain_text.json", "r") as text_file:
-    text = text_file.readlines()
-
-  with open("../../data/fashion-words.txt", "r") as text_file:
-    f_words = text_file.readlines()
-
-  # Example document
-  documents = ["sandal with jacket dress vest tuxedo",
-               "brief gown here is what you",
-               "sandal without jacket",
-               "to brief a person",
-               "tuxedo"]
-
-  tokens = []
-  token = 0
-  data = []
-  nouns = []
-  test = []
-
-  print(f_words)
-  for word in f_words:
-    for dic in word.lower().split():
-      print(dic)
-      test.append([dic.strip('[],')[1:-1]])
-
-  for document in documents:
-    # for x in range(0, 1):
-    # reads first json
-    # json_data = json.loads(text[x])
-
-    # print(json_data)
-    # extracted_text = json_data["extracted_text"]
-    sentences = nltk.sent_tokenize(document)
-
-    # nltk version 3.1 beacuse in 3.0 pos_tag doesnt work
-    # tokenize sentences and add nouns to array
-    for s in sentences:
-      s.lower()
-      tokens.append(nltk.word_tokenize(s))
-      words_with_tags = nltk.tag.pos_tag(nltk.word_tokenize(s))
-
-      for w in words_with_tags:
-        if w[1] == "NN" or w[1] == "NNP" or w[1] == "NNPS" or w[1] == "NNS":
-          nouns.append(w[0])
-
-    data.append(nouns)
-
-  print(data)
   ######create dictionary with unique tokens
   ######array of tokens with nouns from nltk
-  dictionary = corpora.Dictionary(data)
-  print(dictionary.token2id)
-  dictionary.save(path + 'zalando.dict')
+  #dictionary = corpora.Dictionary(data)
+  #print(dictionary.token2id)
+  #dictionary.save(path + 'zalando.dict')
 
   ######match dict with documents
-  corpus = [dictionary.doc2bow(text) for text in tokens]
-  corpora.MmCorpus.serialize(path + 'zalando.mm', corpus)
+  #corpus = [dictionary.doc2bow(text) for text in tokens]
+  #corpora.MmCorpus.serialize(path + 'zalando.mm', corpus)
   # corpus = corpora.MmCorpus('/tmp/zalando.mm')
 
   # print(nouns)
   # print(tokens)
   # print(dictionary)
-  print (corpus)
 
   # #####Similarity Interface############
   # ####doc should be dictionary with fashion words
@@ -109,15 +58,16 @@ def main():
   # # sims = sorted(enumerate(sims), key=lambda item: -item[1])
   # print(sims)
 
-def word2vec():
 
+def word2vec():
   # Loading external files
-  with open(PROJECT_DIR + "data/plain_text_optimized_eng_filtered.json", "r") as text_file:
-    text = text_file.readlines()
+  with open(PROJECT_DIR + "data/example_docs_tokenized.json", "r") as text_file:
+    text = json.load(text_file)
   with open(PROJECT_DIR + "data/one_word_entities_reduced.txt", "r") as text_file:
     fashion_dictionary = text_file.readlines()
-  #with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
+  # with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
   #  fashion_dictionary = text_file.readlines()
+
 
   # read words from fashion dictionary
   fashion_words = []
@@ -126,9 +76,12 @@ def word2vec():
       fashion_words.append([dic.strip('[],')[1:-1]])
 
   # nltk tokenizing with demo sents
-  demo_sents = ["British designer Nadia Izruna’s love of clothing and the desire to sew up cheerful, well-designed womenswear spurred her on to start her own label in 2009.",
-                "During Paris Fashion Week I had the opportunity to work on something incredibly special for Valentino and vogue.com."]
-  list_of_words = nltk_tokenizing(demo_sents)
+  demo_sents = [
+    "British designer Nadia Izruna’s love of clothing and the desire to sew up cheerful, well-designed womenswear spurred her on to start her own label in 2009.",
+    "During Paris Fashion Week I had the opportunity to work on something incredibly special for Valentino and vogue.com."]
+
+  #list_of_words = nltk_tokenizing(text)
+
 
   # load model for word2vec
   model = load_model(1)
@@ -168,15 +121,15 @@ def word2vec():
       try:
         len(data[counter][1])
       except:
-        data[counter].append([("-----","-----"),("-----","-----"),("-----","-----")])
+        data[counter].append([("-----", "-----"), ("-----", "-----"), ("-----", "-----")])
 
       for x in range(0, 8 - len(row_array)):
-        #print (w + " is not in vocabulary!")
+        # print (w + " is not in vocabulary!")
         row_array.append("-----")
 
     for f in fashion_words:
       try:
-        #cos = model.similarity("/en/" + w[0], "/en/" + f[0])
+        # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
         cos = model.similarity(w[0].lower(), f[0].lower())
         if cos > sim:
           sim = cos
@@ -184,7 +137,7 @@ def word2vec():
       except:
         pass
 
-    #appending JOIN-Partner
+    # appending JOIN-Partner
     if sim == 0:
       data[counter].append("NONE")
       row_array.append("NONE")
@@ -193,7 +146,7 @@ def word2vec():
       row_array.append(str(word) + "\n" + str(sim))
       sim = 0
 
-    #add row to tab_array, reset row
+    # add row to tab_array, reset row
     tab_array.append(row_array)
 
     counter += 1
@@ -204,20 +157,32 @@ def word2vec():
   print "#                                            Textmining with Word2Vec and NLTK                                            #"
   print "###########################################################################################################################"
 
-  #tab_array = collect_table_data(data)
+  # tab_array = collect_table_data(data)
   draw_table(tab_array)
 
   return " "
 
+
 # returns an list of words from a given array of sentences
-def nltk_tokenizing(sentences):
+def nltk_tokenizing(document):
   #
   # NLTK Tokenizing
   #
   list_of_words = []
-  for s in sentences:
-    for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
-      list_of_words.append(word)
+
+  # for x in range(0, 1):
+  # reads first json
+  #json_data = json.loads(document)
+
+  for data in document:
+    print(data)
+    extracted_text = data["extracted_text"]
+    sentences = nltk.sent_tokenize(extracted_text)
+
+    for s in sentences:
+      for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
+        if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
+          list_of_words.append(word)
   return list_of_words
 
 
@@ -238,12 +203,12 @@ def nltk_tokenizing(sentences):
   #     #for word in tok_words:
   #     #  list_of_words.append(word)
 
-#loads a word2vec model depending on x:
+
+# loads a word2vec model depending on x:
 # x = 0: Glove model
 # x = 1: Own Fashion Model
 # x = 2: Freebase TODO: Path
 def load_model(x):
-
   if x == 0:
     '''
     Convert Glove Model to Gensim Word2Vec
@@ -251,10 +216,12 @@ def load_model(x):
     GloVe transforms the neutral network problem into a word co-occurrence matrix so it should
     be faster to train but uses more memory.
     '''
+
     def any2unicode(text, encoding='utf8', errors='strict'):
       if isinstance(text, unicode):
         return text
       return unicode(text.replace('\xc2\x85', '<newline>'), encoding, errors=errors)
+
     gensim.models.utils.to_unicode = any2unicode
 
     return gensim.models.Word2Vec.load_word2vec_format(join(GLOVE_DIR, 'common.840B.300d.txt'), binary=False)
@@ -265,26 +232,28 @@ def load_model(x):
   if x == 2:
     return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
 
+
 def collect_table_data(data):
   result = []
   row_array = []
 
   for line in data:
-    #row_array.append(line[0][0])
-    #row_array.append(line[0][1])
-    #row_array.append(str(line[1][0][0]).encode('utf8'))
-    #row_array.append(str(line[1][0][1]))
-    #row_array.append(str(line[1][1][0]).encode('utf8'))
-    #row_array.append(str(line[1][1][1]))
-    #row_array.append(str(line[1][2][0]).encode('utf8'))
-    #row_array.append(str(line[1][2][1]))
-    #row_array.append(line[2])
-    #result.append(row_array)
+    # row_array.append(line[0][0])
+    # row_array.append(line[0][1])
+    # row_array.append(str(line[1][0][0]).encode('utf8'))
+    # row_array.append(str(line[1][0][1]))
+    # row_array.append(str(line[1][1][0]).encode('utf8'))
+    # row_array.append(str(line[1][1][1]))
+    # row_array.append(str(line[1][2][0]).encode('utf8'))
+    # row_array.append(str(line[1][2][1]))
+    # row_array.append(line[2])
+    # result.append(row_array)
     row_array = []
 
   return result
 
-#draws a table
+
+# draws a table
 def draw_table(tab_array):
   tab = tt.Texttable()
   tab.header(['Words', 'POS-Tag', 'Word1', 'Cos-Dist', 'Word2', 'Cos-Dist', 'Word3', 'Cos-Dist', 'JOIN-Partner'])
@@ -292,20 +261,22 @@ def draw_table(tab_array):
   for row in tab_array:
     tab.add_row(row)
 
-  #tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
-  #tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
-  #tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
+  # tab.add_row(['Zalando', 'NN', 'H&M',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'shoe'])
+  # tab.add_row(['is', 'VB', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'blub'])
+  # tab.add_row(['big', 'AD', 'word2',	'0,6434', 'word2',	'0,6234', 'word3', '0,5324', 'fubar'])
 
-  tab.set_cols_width([15,5,15,5,15,5,15,5,15])
-  tab.set_cols_align(['l','l','l','l','l','l','l','l','l'])
-  tab.set_chars(['-','|','+','='])
+  tab.set_cols_width([15, 5, 15, 5, 15, 5, 15, 5, 15])
+  tab.set_cols_align(['l', 'l', 'l', 'l', 'l', 'l', 'l', 'l', 'l'])
+  tab.set_chars(['-', '|', '+', '='])
 
   print tab.draw()
+
 
 def custom_public_function_reachable_from_outside():
   """define functions that can be accessed from main.py and other modules"""
 
+
 if __name__ == "__main__":
   # Execute the main function if this file was executed from the terminal
   word2vec()
-  #gloveToVec()
+  # gloveToVec()
