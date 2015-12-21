@@ -7,6 +7,7 @@ import pprint
 import nltk
 from os.path import join
 import os
+from gensim import corpora  # , models, similarities
 
 PROJECT_DIR = os.path.dirname(__file__) + "/../"
 
@@ -39,16 +40,24 @@ def nltk_tokenizing(document):
 
     entities = []
     indicies = []
+    token_words = []
 
     for s in sentences:
       for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
         if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
-          i_tmp = []
-          for m in re.finditer(word[0], extracted_text):
-            i_tmp.append([m.start(), m.end()])
+          token_words.append(word[0])
 
-            entities.append(word[0].encode('utf-8'))
-            indicies.append(i_tmp)
+
+    #print(token_words)
+    dictionary = corpora.Dictionary([token_words])
+    #dictionary.save('/tmp/deerwester.dict')
+
+    for word in dictionary:
+      i_tmp = []
+      for m in re.finditer(dictionary[word], extracted_text):
+        i_tmp.append([m.start(), m.end()])
+      entities.append(dictionary[word].encode('utf-8'))
+      indicies.append(i_tmp)
 
     tmp = {"_id": data["_id"]["$oid"], "entities": entities, "indicies": indicies}
 
