@@ -69,10 +69,12 @@ class MainArea(tk.Frame):
         self.WORD_INPUT = self.make_entry("Search", width=10)
 
     def make_entry(self, caption, width=None, **kwargs):
-        tk.Label(self, text=caption, font=FONT_MENU).grid(row=1, column=1, sticky="nesw")
+        tk.Label(self, text=caption, font=FONT_MENU).grid(row=0, column=0, sticky="e")
         entry = tk.Entry(self, **kwargs)
         if width:
             entry.config(width=width)
+
+        entry.grid(row=0, column=1, sticky="w")
         return entry
 
 
@@ -95,17 +97,16 @@ class Application(tk.Frame):
         # Test Data
         self.graph_data = [
             [0, 0],
-            [.2, .1],
-            [.4, .5],
-            [.6, .9],
-            [1, 1]
+            #[.2, .1],
+            #[.4, .5],
+            #[.6, .9],
+            #[1, 1]
         ]
 
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.statusbar = Statusbar(self)
         self.main_area = MainArea(self)
 
-        # self.create_widgets()
         self.create_canvas()
 
         # menubar and sub menus
@@ -119,7 +120,7 @@ class Application(tk.Frame):
         self.master.title(self.TITLE)
         self.master.config(menu=self.menubar)
 
-        # self.main_area.pack(side="left", fill="y")
+        self.main_area.pack(side="left", fill="both")
 
         # self.statusbar.pack(side="bottom", fill="x")
 
@@ -140,12 +141,15 @@ class Application(tk.Frame):
         with open(path, "a") as s_file:
             s_file.write(text)
 
+    def save_graph(self):
+        print "TODO"
+
     def select_dir(self, title):
-        file_save_options = {
+        file_html_save_options = {
             'filetypes': [("html file", "*.html")],
             'title': title
         }
-        return tkFileDialog.asksaveasfilename(**file_save_options)
+        return tkFileDialog.asksaveasfilename(**file_html_save_options)
 
     def export_html(self):
         data = self.open_json(title='Choose the JSON with the documents')
@@ -165,7 +169,7 @@ class Application(tk.Frame):
 
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.file_menu.add_command(label="Open", command=lambda: self.open_file())
-        self.file_menu.add_command(label="Save", command=lambda: self.save_file())
+        self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()
@@ -185,11 +189,6 @@ class Application(tk.Frame):
         self.menubar.add_cascade(label="Analyse", menu=self.analyse_menu)
         self.menubar.add_cascade(label="Graph", menu=self.graph_menu)
         self.menubar.add_cascade(label="Help", menu=self.help_menu)
-
-    def create_widgets(self):
-        self.DRAW = ttk.Button(self)
-        self.DRAW["text"] = "Draw"
-        self.DRAW.pack({"side": "bottom"})
 
     def create_canvas(self):
         self.CANVAS = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT,

@@ -18,6 +18,19 @@ def sort_2d_array(array=None):
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
+def merge_intersected_indicies(array_one=None, array_two=None):
+    if array_one is None:
+        array_one = []
+
+    if array_two is None:
+        array_two = []
+
+    if array_one[1] >= array_two[0]:
+        return [array_one[0], array_two[1]]
+    else:
+        return array_one, array_two
+
+
 def extract_indicies(array=None):
     if array is None:
         array = []
