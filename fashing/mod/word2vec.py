@@ -65,6 +65,9 @@ def word2vec():
     text = json.load(text_file)
   with open(PROJECT_DIR + "data/one_word_entities_reduced.txt", "r") as text_file:
     fashion_dictionary = text_file.readlines()
+  with open(PROJECT_DIR + "data/vector_words_tags.json", "a") as vector_words:
+    vector_words.seek(0)
+    vector_words.truncate()
   # with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
   #  fashion_dictionary = text_file.readlines()
 
@@ -80,77 +83,131 @@ def word2vec():
     "British designer Nadia Izruna’s love of clothing and the desire to sew up cheerful, well-designed womenswear spurred her on to start her own label in 2009.",
     "During Paris Fashion Week I had the opportunity to work on something incredibly special for Valentino and vogue.com."]
 
-  #list_of_words = nltk_tokenizing(text)
-
-
   # load model for word2vec
   model = load_model(1)
 
-  ###########################################################################################
+
+  number_of_documents = 0
+  max_documents = 50
   sim = 0
-  word = ""
-
-  data = []
-
-  tab_array = []
-  row_array = []
-
-  counter = 0
-  for w in list_of_words:
-    data.append([])
-    data[counter].append(w)
-
-    # appending Word
-    row_array.append(str(w[0]))
-    # appending POS-Tag
-    row_array.append(str(w[1]))
-
-    try:
-      # appending top three words
-      top_three = model.most_similar(w[0], topn=3)
-      data[counter].append(top_three)
-
-      row_array.append(str(top_three[0][0]))
-      row_array.append(round(top_three[0][1], 4))
-      row_array.append(str(top_three[1][0]))
-      row_array.append(round(top_three[1][1], 4))
-      row_array.append(str(top_three[2][0]))
-      row_array.append(round(top_three[2][1], 4))
-
-    except:
-      try:
-        len(data[counter][1])
-      except:
-        data[counter].append([("-----", "-----"), ("-----", "-----"), ("-----", "-----")])
-
-      for x in range(0, 8 - len(row_array)):
-        # print (w + " is not in vocabulary!")
-        row_array.append("-----")
-
-    for f in fashion_words:
-      try:
-        # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
-        cos = model.similarity(w[0].lower(), f[0].lower())
-        if cos > sim:
-          sim = cos
-          word = f[0]
-      except:
-        pass
+  list_of_words = []
+  for doc in text:
+    cos_dist = []
+    extracted_tokens = doc["entities"]
+    for token in extracted_tokens:
+      for f in fashion_words:
+        try:
+          # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
+          cos = model.similarity(token.lower(), f[0].lower())
+          if cos > sim:
+            sim = cos
+            word = f[0]
+        except:
+          pass
 
     # appending JOIN-Partner
-    if sim == 0:
-      data[counter].append("NONE")
-      row_array.append("NONE")
+      if sim == 0:
+        cos_dist.append(["NONE", "NONE"])
+      else:
+        cos_dist.append([str(word), str(sim)])
+
+        sim = 0
+
+    doc["cosDist"] = cos_dist
+
+    pre = ""
+    suf = ""
+
+    if number_of_documents == 0:
+      pre = "["
+      suf = ","
+    elif number_of_documents == max_documents - 1:
+      suf = "]"
     else:
-      data[counter].append(str(word) + "\n" + str(sim))
-      row_array.append(str(word) + "\n" + str(sim))
-      sim = 0
+      suf = ","
+      #list_of_words.append(token)
 
-    # add row to tab_array, reset row
-    tab_array.append(row_array)
+    number_of_documents += 1
 
-    counter += 1
-    row_array = []
+    with open(PROJECT_DIR + "data/vector_words_tags.json", "a") as example_docs_tags:
+      example_docs_tags.writelines(pre + json.dumps(doc).encode('utf-8') + suf + "\n")
+
+    if number_of_documents == max_documents:
+      break
+
+  #print(list_of_words)
+
+  # load model for word2vec
+  #model = load_model(1)
+
+  ###########################################################################################
+  # sim = 0
+  # word = ""
+  #
+  # data = []
+  #
+  # tab_array = []
+  # row_array = []
+  #
+  # counter = 0
+  # for w in list_of_words:
+  #   data.append([])
+  #   data[counter].append(w)
+  #
+  #   # appending Word
+  #   row_array.append(w.encode("utf-8"))
+  #   # appending POS-Tag
+  #   row_array.append(w.encode("utf-8"))
+  #
+  #   try:
+  #     # appending top three words
+  #     top_three = model.most_similar(w, topn=3)
+  #     data[counter].append(top_three)
+  #
+  #     row_array.append(str(top_three[0][0]))
+  #     row_array.append(round(top_three[0][1], 4))
+  #     row_array.append(str(top_three[1][0]))
+  #     row_array.append(round(top_three[1][1], 4))
+  #     row_array.append(str(top_three[2][0]))
+  #     row_array.append(round(top_three[2][1], 4))
+  #
+  #   except:
+  #     try:
+  #       len(data[counter][1])
+  #     except:
+  #       data[counter].append([("-----", "-----"), ("-----", "-----"), ("-----", "-----")])
+  #
+  #     for x in range(0, 8 - len(row_array)):
+  #       # print (w + " is not in vocabulary!")
+  #       row_array.append("-----")
+  #
+  #   for f in fashion_words:
+  #     try:
+  #       # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
+  #       cos = model.similarity(w.lower(), f[0].lower())
+  #       if cos > sim:
+  #         sim = cos
+  #         word = f[0]
+  #     except:
+  #       pass
+  #
+  #   # appending JOIN-Partner
+  #   if sim == 0:
+  #     data[counter].append("NONE")
+  #     row_array.append("NONE")
+  #   else:
+  #     data[counter].append(str(word) + "\n" + str(sim))
+  #     row_array.append(str(word) + "\n" + str(sim))
+  #
+  #     sim = 0
+  #
+  #
+  #
+  #   # add row to tab_array, reset row
+  #   tab_array.append(row_array)
+  #
+  #   counter += 1
+  #   row_array = []
 
   print
   print "###########################################################################################################################"
@@ -158,7 +215,7 @@ def word2vec():
   print "###########################################################################################################################"
 
   # tab_array = collect_table_data(data)
-  draw_table(tab_array)
+  #draw_table(tab_array)
 
   return " "
 
