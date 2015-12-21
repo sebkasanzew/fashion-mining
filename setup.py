@@ -12,6 +12,7 @@ setup(
     author_email='...@..., ...@..., sebkasanzew@gmail.com, ...@...',
     install_requires=['gensim>=0.12.2',
                       'nltk>=2.0',
+                      'lxml>=3.5.0'
                       ],
     packages=["fashing"]
 )

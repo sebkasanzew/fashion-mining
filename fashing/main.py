@@ -119,7 +119,7 @@ class Application(tk.Frame):
         self.master.title(self.TITLE)
         self.master.config(menu=self.menubar)
 
-        self.main_area.pack(side="left", fill="y")
+        # self.main_area.pack(side="left", fill="y")
 
         # self.statusbar.pack(side="bottom", fill="x")
 
@@ -127,21 +127,32 @@ class Application(tk.Frame):
         path = tkFileDialog.askopenfilename(**kwargs)
         return util.open_json(path)
 
-    def open_json(self):
+    def open_json(self, title):
         file_json_options = {
             'filetypes': [("json files", "*.json")],
-            'title': 'Choose the JSON with the documents'
+            'title': title
         }
 
         path = tkFileDialog.askopenfilename(**file_json_options)
         return util.open_json(path)
 
-    def open_save(self):
-        print "command: file save"
+    def save_file(self, path, text):
+        with open(path, "a") as s_file:
+            s_file.write(text)
+
+    def select_dir(self, title):
+        file_save_options = {
+            'filetypes': [("html file", "*.html")],
+            'title': title
+        }
+        return tkFileDialog.asksaveasfilename(**file_save_options)
 
     def export_html(self):
-        data = self.open_json()
-        util.export_html(data)
+        data = self.open_json(title='Choose the JSON with the documents')
+        tags = self.open_json(title='Choose the JSON with the tags')
+
+        path = self.select_dir(title="Select where to save the HTML file")
+        self.save_file(path=path, text=util.create_html(data, tags))
 
     def about(self):
         print "command: about"
@@ -154,7 +165,7 @@ class Application(tk.Frame):
 
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.file_menu.add_command(label="Open", command=lambda: self.open_file())
-        self.file_menu.add_command(label="Save", command=lambda: self.open_save())
+        self.file_menu.add_command(label="Save", command=lambda: self.save_file())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()
