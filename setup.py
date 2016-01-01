@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-# TODO complete the setup file
+# TODO: complete the setup file
 setup(
     name='fashing',
     version='0.1',
