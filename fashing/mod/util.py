@@ -105,6 +105,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     for i in step_range(0, 1, 0.05):
         calc_precision_recall(i, compared)
 
+    # TODO: replace this static return with the calculated one
     return [
         [0, 1],
         [.05, .05],
@@ -130,53 +131,77 @@ def compare_docs(gold_document=None, w2v_document=None):
     ]
 
 
-def compare_indices(indices1, indices2):
+def compare_indices(gold_indices, w2v_indices):
     # TODO: compare the indices in the correct way
     """
-    :param indices1:
-    :param indices2:
+    :param gold_indices:
+    :param w2v_indices:
     :return:
     """
-    indices1 = extract_indices(indices1)
-    indices2 = extract_indices(indices2)
+    gold_indices = extract_indices(gold_indices)
+    w2v_indices = extract_indices(w2v_indices)
 
-    indices1 = sorted(indices1)
-    indices2 = sorted(indices2)
+    gold_indices = sorted(gold_indices)
+    w2v_indices = sorted(w2v_indices)
 
-    print "1:", indices1
-    print "2:", indices2
+    print "gold:", gold_indices
+    print "w2v:", w2v_indices
 
     doc_compare = []
 
-    def check_fp(k, l):
-        if l not in k:
-            return True
-        return False
+    def check_fp(gold_index, w2v_index):
+        """
+        Checks if the word from word2vec is a false positive by checking if the same index is not present in the gold
+        standard index.
+        :param gold_index: the gold index
+        :param w2v_index: the word2vec index
+        :type gold_index: int
+        :type w2v_index: int
+        :return: Return True if it's a false positive.
+        :rtype: bool
+        """
+        return w2v_index not in gold_index
 
-    def check_tp(k, l):
-        if l in k:
-            return True
-        return False
+    def check_tp(gold_index, w2v_index):
+        """
+        Checks if the word from word2vec is a true positive by checking if the same index is present in the gold
+        standard index.
+        :param gold_index: the gold index
+        :param w2v_index: the word2vec index
+        :type gold_index: int
+        :type w2v_index: int
+        :return: Return True if it's a true positive.
+        :rtype: bool
+        """
+        return w2v_index in gold_index
 
-    def check_fn(k, l):
-        if k not in l:
-            return True
-        return False
+    def check_fn(gold_index, w2v_index):
+        """
+        Checks if the word from gold standard is a false negative by checking if the same index is not present in the
+        word2vec index.
+        :param gold_index: the gold index
+        :param w2v_index: the word2vec index
+        :type gold_index: int
+        :type w2v_index: int
+        :return: Return True if it's a false negative.
+        :rtype: bool
+        """
+        return gold_index not in w2v_index
 
-    for i, val in enumerate(indices1):
-        print "i:", i
-        for j, val2 in enumerate(indices2):
-            print "j:", j
-            print indices2
+    for i, val in enumerate(gold_indices):
+        print "gold index:", i
+        for j, val2 in enumerate(w2v_indices):
+            print "w2v index:", j
+            # print w2v_indices
             result = {}
-            if check_fn(indices1[i], indices2[j]):
-                result = {"cos": indices2[j][2], "count": [1, 0, 0]}
+            if check_fn(gold_indices[i], w2v_indices[j]):
+                result = {"cos": w2v_indices[j][2], "count": {"fn": 1, "fp": 0, "tp": 0}}
 
-            if check_fp(indices1[i], indices2[j]):
-                result = {"cos": indices2[j][2], "count": [0, 1, 0]}
+            if check_fp(gold_indices[i], w2v_indices[j]):
+                result = {"cos": w2v_indices[j][2], "count": {"fn": 0, "fp": 1, "tp": 0}}
 
-            if check_tp(indices1[i], indices2[j]):
-                result = {"cos": indices2[j][2], "count": [0, 0, 1]}
+            if check_tp(gold_indices[i], w2v_indices[j]):
+                result = {"cos": w2v_indices[j][2], "count": {"fn": 0, "fp": 0, "tp": 1}}
 
             doc_compare.append(result)
 
@@ -189,15 +214,20 @@ def calc_precision_recall(cos, data):
     
     :param cos:
     :param data:
+    :type cos:
+    :type data:
     :return:
+    :rtype:
     """
     filtered = []
 
     for i, val in enumerate(data):
         print "############### DATA", data
         if float(data[0][0][i][2]) > cos:
-            r = calc_recall(data[0][0]["count"][2], data["count"][0])
-            p = calc_precision(data[0][0]["count"][2], data["count"][1])
+            count = data[0][0]["count"]
+            r = calc_recall(count["tp"], count["fn"])
+            p = calc_precision(count["tp"], count["fp"])
+            filtered.append([r, p])
 
 
 def extract_indices(array=None):
@@ -291,9 +321,9 @@ def open_json(path=str()):
 
 def export_html(path=str()):
     """
-    Dunno, makes no sense to me
+    Dunno, makes no sense to me. Just leave it like this for now
     :param path:
-    :type path:
+    :type path: str
     :return: Nothing
     :rtype: None
     """
