@@ -28,11 +28,12 @@ def sort_2d_array(array=None):
     :rtype: list[list[int]]
     """
     if array is None:
-        array = []
+        return []
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
 def sort_3d_array(array=None):
+    # TODO: seems to do the same like sort_2d_array()
     """
     Sort a 3D array after the first number ascending.
     :param array: unsorted 3D-list
@@ -41,7 +42,7 @@ def sort_3d_array(array=None):
     :rtype: list[list[list[int]]]
     """
     if array is None:
-        array = []
+        return []
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
@@ -82,53 +83,59 @@ def compare_docs(gold_document=None, w2v_document=None):
     compared = []
 
     if gold_document is None:
-        gold_document = [{"entities": ["a", "b"], "_id": "b1", "indicies": [[[1, 2], [4, 6]], [[8, 10]]]}]
+        gold_document = [{"entities": ["a", "b"], "_id": "b1", "indicies": [[[1, 2], [4, 6]], [[8, 10]], [[22, 32]]]}]
 
     if w2v_document is None:
         w2v_document = [{"entities": ["a", "b", "c", "d"], "_id": "b1", "cosDist": [.7, .9, .2, .4],
                          "indicies": [[[14, 18]], [[1, 2], [4, 6]], [[8, 10]], [[11, 13], [14, 16]]]}]
 
-    for doc2 in w2v_document:
-        print doc2
-        for i, val in enumerate(doc2):
+    for w2v_doc in w2v_document:
+        print w2v_doc
+        for i, val in enumerate(w2v_doc):
             # print doc2["cosDist"], i
-            cos = doc2["cosDist"][i]
-            for j in doc2["indicies"][i]:
+            cos = w2v_doc["cosDist"][i]
+            for j in w2v_doc["indicies"][i]:
                 j.append(cos)
 
-    for doc1 in gold_document:
-        for doc2 in w2v_document:
-            if doc1["_id"] == doc2["_id"]:
-                compared.append(compare_indices(doc1["indicies"], doc2["indicies"]))
-                print "compared", compared
+    for gold_doc in gold_document:
+        for w2v_doc in w2v_document:
+            if gold_doc["_id"] == w2v_doc["_id"]:
+                compared.append(compare_indices(gold_doc["indicies"], w2v_doc["indicies"]))
+                print "compared:"
+                print pprint(compared)
+
+    graph_data = []
 
     for i in step_range(0, 1, 0.05):
-        calc_precision_recall(i, compared)
+        pr = calc_precision_recall(i, compared, [])  # TODO: calculate fn
+        graph_data.append([i, pr])
+
+    return graph_data
 
     # TODO: replace this static return with the calculated one
-    return [
-        [0, 1],
-        [.05, .05],
-        [.1, .1],
-        [.15, .15],
-        [.2, .2],
-        [.25, .25],
-        [.3, .3],
-        [.35, .35],
-        [.4, .4],
-        [.45, .45],
-        [.5, .5],
-        [.55, .55],
-        [.6, .6],
-        [.65, .65],
-        [.7, .7],
-        [.75, .75],
-        [.8, .8],
-        [.85, .85],
-        [.9, .9],
-        [.95, .95],
-        [1, 0],
-    ]
+    # return [
+    #     [0, 1],
+    #     [.05, .95],
+    #     [.1, .9],
+    #     [.15, .85],
+    #     [.2, .8],
+    #     [.25, .75],
+    #     [.3, .7],
+    #     [.35, .65],
+    #     [.4, .6],
+    #     [.45, .55],
+    #     [.5, .5],
+    #     [.55, .95],  # small recognizable change
+    #     [.6, .4],
+    #     [.65, .35],
+    #     [.7, .3],
+    #     [.75, .25],
+    #     [.8, .2],
+    #     [.85, .15],
+    #     [.9, .1],
+    #     [.95, .05],
+    #     [1, 0],
+    # ]
 
 
 def compare_indices(gold_indices, w2v_indices):
@@ -147,87 +154,60 @@ def compare_indices(gold_indices, w2v_indices):
     print "gold:", gold_indices
     print "w2v:", w2v_indices
 
+    true_positives_found = [0]
+
+    def check_tp_and_fp(g_indices, w2v_index, tp_found):
+        for i, gold_val in enumerate(g_indices):
+            if w2v_index[0] == g_indices[i][0] and w2v_index[1] == g_indices[i][1]:
+                tp_found[0] += 1
+                return {"cos": w2v_indices[j][2], "count": {"fn": 0, "fp": 0, "tp": 1}}
+
+        return {"cos": w2v_index[2], "count": {"fn": 0, "fp": 1, "tp": 0}}
+
     doc_compare = []
 
-    def check_fp(gold_index, w2v_index):
-        """
-        Checks if the word from word2vec is a false positive by checking if the same index is not present in the gold
-        standard index.
-        :param gold_index: the gold index
-        :param w2v_index: the word2vec index
-        :type gold_index: int
-        :type w2v_index: int
-        :return: Return True if it's a false positive.
-        :rtype: bool
-        """
-        return w2v_index not in gold_index
+    for j, w2v_val in enumerate(w2v_indices):
+        print "w2v index:", j
+        print "tp found:", true_positives_found[0]
+        result = check_tp_and_fp(gold_indices, w2v_indices[j], true_positives_found)
 
-    def check_tp(gold_index, w2v_index):
-        """
-        Checks if the word from word2vec is a true positive by checking if the same index is present in the gold
-        standard index.
-        :param gold_index: the gold index
-        :param w2v_index: the word2vec index
-        :type gold_index: int
-        :type w2v_index: int
-        :return: Return True if it's a true positive.
-        :rtype: bool
-        """
-        return w2v_index in gold_index
-
-    def check_fn(gold_index, w2v_index):
-        """
-        Checks if the word from gold standard is a false negative by checking if the same index is not present in the
-        word2vec index.
-        :param gold_index: the gold index
-        :param w2v_index: the word2vec index
-        :type gold_index: int
-        :type w2v_index: int
-        :return: Return True if it's a false negative.
-        :rtype: bool
-        """
-        return gold_index not in w2v_index
-
-    for i, val in enumerate(gold_indices):
-        print "gold index:", i
-        for j, val2 in enumerate(w2v_indices):
-            print "w2v index:", j
-            # print w2v_indices
-            result = {}
-            if check_fn(gold_indices[i], w2v_indices[j]):
-                result = {"cos": w2v_indices[j][2], "count": {"fn": 1, "fp": 0, "tp": 0}}
-
-            if check_fp(gold_indices[i], w2v_indices[j]):
-                result = {"cos": w2v_indices[j][2], "count": {"fn": 0, "fp": 1, "tp": 0}}
-
-            if check_tp(gold_indices[i], w2v_indices[j]):
-                result = {"cos": w2v_indices[j][2], "count": {"fn": 0, "fp": 0, "tp": 1}}
-
-            doc_compare.append(result)
+        doc_compare.append(result)
 
     return doc_compare
 
 
-def calc_precision_recall(cos, data):
+def calc_precision_recall(cos, data, gold_indices):
     # TODO: calculate precision/recall
-    """
-    
-    :param cos:
-    :param data:
-    :type cos:
-    :type data:
-    :return:
-    :rtype:
-    """
-    filtered = []
+    filtered_data = []
+    for i in data[0]:
+        if float(i["cos"]) >= cos:
+            filtered_data.append(i)
 
-    for i, val in enumerate(data):
-        print "############### DATA", data
-        if float(data[0][0][i][2]) > cos:
-            count = data[0][0]["count"]
-            r = calc_recall(count["tp"], count["fn"])
-            p = calc_precision(count["tp"], count["fp"])
-            filtered.append([r, p])
+    tp = calc_tp(filtered_data)
+    fp = calc_fp(filtered_data)
+    fn = calc_fn(tp, len(gold_indices))
+
+    return [calc_precision(tp, fp), calc_recall(tp, fn)]
+
+
+def calc_tp(doc):
+    count = 0
+    for i in doc:
+        if i["count"]["tp"] == 1:
+            count += 1
+    return count
+
+
+def calc_fp(doc):
+    count = 0
+    for i in doc:
+        if i["count"]["fp"] == 1:
+            count += 1
+    return count
+
+
+def calc_fn(tp_count, relevant_elements):
+    return relevant_elements - tp_count
 
 
 def extract_indices(array=None):
@@ -315,8 +295,13 @@ def open_json(path=str()):
     :rtype: list
     """
     print "opened file in path: ", path
-    with open(path, mode="r") as data:
-        return json.load(data, encoding="utf-8")
+
+    try:
+        with open(path, mode="r") as data:
+            return json.load(data, encoding="utf-8")
+    except IOError as e:
+        print "IOError:" + e.message
+        return False
 
 
 def export_html(path=str()):

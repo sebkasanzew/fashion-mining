@@ -154,10 +154,13 @@ class Application(tk.Frame):
         return util.open_json(path)
 
     def save_file(self, path, text):
-        with open(path, "a") as s_file:
-            s_file.seek(0)
-            s_file.truncate()
-            s_file.write(text)
+        try:
+            with open(path, "a") as s_file:
+                s_file.seek(0)
+                s_file.truncate()
+                s_file.write(text)
+        except IOError as e:
+            print "IOError:" + e.message
 
     def save_graph(self):
         print "TODO"
@@ -186,7 +189,8 @@ class Application(tk.Frame):
         sys.exit(0)
 
     def compare_docs(self):
-        util.compare_docs()
+        self.graph_data = util.compare_docs()
+        self.update_canvas()
 
     def create_menu_bar(self):
         self.menubar = tk.Menu(self, font=FONT_MENU)
