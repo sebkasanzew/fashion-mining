@@ -303,7 +303,7 @@ class Application(tk.Frame):
 
 
 def execute_w2v():
-    print(w2v.word2vec())
+    w2v.word2vec()
 
 
 if __name__ == "__main__":
