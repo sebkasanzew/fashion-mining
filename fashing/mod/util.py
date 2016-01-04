@@ -83,11 +83,23 @@ def compare_docs(gold_document=None, w2v_document=None):
     compared = []
 
     if gold_document is None:
-        gold_document = [{"entities": ["a", "b"], "_id": "b1", "indicies": [[[1, 2], [4, 6]], [[8, 10]], [[22, 32]]]}]
+        gold_document = [{"entities": ["a", "b"],
+                          "_id": "b1",
+                          "indicies": [
+                              [[1, 2], [4, 6]],
+                              [[8, 10]],
+                              [[22, 32]]
+                          ]}]
 
     if w2v_document is None:
-        w2v_document = [{"entities": ["a", "b", "c", "d"], "_id": "b1", "cosDist": [.7, .9, .2, .4],
-                         "indicies": [[[14, 18]], [[1, 2], [4, 6]], [[8, 10]], [[11, 13], [14, 16]]]}]
+        w2v_document = [{"entities": ["a", "b", "c", "d"], "_id": "b1",
+                         "cosDist": [.7, .9, .2, .4],
+                         "indicies": [
+                             [[14, 18]],
+                             [[1, 2], [4, 6]],
+                             [[8, 10]],
+                             [[11, 13], [14, 16]]
+                         ]}]
 
     for w2v_doc in w2v_document:
         print w2v_doc
