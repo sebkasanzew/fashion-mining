@@ -42,7 +42,7 @@ open the terminal and execute the following code:
 ~$ sudo apt-get install libamd2.* libblas3gf libc6 libgcc1 \
 libgfortran3 liblapack3gf libumfpack5.* libstdc++6 \
 build-essential gfortran python-all-dev \
-libatlas-base-dev 
+libatlas-base-dev python-tk
 
 ~$ sudo apt-get install python-setuptools
 
@@ -53,3 +53,9 @@ libatlas-base-dev
 ```
 
 All dependencies should be resolved and installation is complete to use *GENSIM*
+
+### Additional Packages
+open the terminal and execute the following code:
+```bash
+~$ sudo pip install texttable
+```

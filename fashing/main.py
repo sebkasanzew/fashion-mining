@@ -166,7 +166,10 @@ class Application(tk.Frame):
         sys.exit(0)
 
     def compare_docs(self):
-        self.graph_data = util.compare_docs()
+        gold = self.open_json(title='Choose the JSON with the gold standard')
+        word2vec = self.open_json(title='Choose the JSON with the word2vec tags')
+
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
         self.update_canvas()
 
     def create_menu_bar(self):

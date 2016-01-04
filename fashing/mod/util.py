@@ -81,8 +81,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     :return: A 2D-list with the graph data. The values should be between 0 and 1.
     :rtype: list[list[int]]
     """
-
-    if gold_document is None:
+    if (gold_document is None) or (gold_document is False):
         gold_document = [{"entities": ["a", "b"],
                           "_id": "b1",
                           "indicies": [
@@ -91,7 +90,7 @@ def compare_docs(gold_document=None, w2v_document=None):
                               [[22, 32]]
                           ]}]
 
-    if w2v_document is None:
+    if (w2v_document is None) or (w2v_document is False):
         w2v_document = [{"entities": ["a", "b", "c", "d"],
                          "_id": "b1",
                          "cosDist": [.7, .9, .2, .4],
@@ -125,7 +124,11 @@ def compare_docs(gold_document=None, w2v_document=None):
     for i in step_range(0, 1, 0.05):
         pr = calc_precision_recall(i, compared)
         # pr = .5
-        graph_data.append([i, pr])
+        graph_data.append(pr)
+
+    graph_data = sorted(graph_data)
+
+    pprint(graph_data)
 
     return graph_data
 
@@ -188,18 +191,28 @@ def calc_precision_recall(cos, data):
     # TODO: calculate precision/recall
     print "\ncos:", cos
 
-    result = []
+    all_tp_fp_fn = []
 
     for i in data:
-        result.append(count_all_tp_fp_fn(cos, i))
+        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
 
-    r = sum(result[0])/len(result)
+    tp = 0
+    fp = 0
+    fn = 0
+
+    for i in all_tp_fp_fn:
+        tp += i["tp"]
+        fp += i["fp"]
+        fn += i["fn"]
+
+    precision = calc_precision(tp, fp)
+    recall = calc_recall(tp, fn)
 
     # [calc_precision(tp, fp), calc_recall(tp, fn)]
 
-    print "calc_precision_recall():", result
+    print "calc_precision_recall():", [recall, precision]
 
-    return result[0]
+    return [recall, precision]
 
 
 def count_all_tp_fp_fn(cos, data):
@@ -231,21 +244,8 @@ def count_all_tp_fp_fn(cos, data):
     fp = calc_fp(filtered_data)
     fn = calc_fn(data, ignored_data)
 
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-
-    # for i in data:
-    #     # print "i:", i
-    #     tp += i["count"]["tp"]
-    #     fp += i["count"]["fp"]
-    #     fn += i["count"]["fn"]
-
-    precision = calc_precision(tp, fp)
-    recall = calc_recall(tp, fn)
-
     pprint({"tp": tp, "fp": fp, "fn": fn})
-    return [precision, recall]
+    return {"tp": tp, "fp": fp, "fn": fn}
 
 
 def calc_tp(doc):
@@ -406,15 +406,15 @@ def create_html(data=None, tags=None):
         },
         ...
     ]
-    :type data: dict
-    :type tags: dict
+    :type data: list
+    :type tags: list
     :return: Formatted html document as text.
     :rtype: str
     """
     if tags is None:
-        tags = {}
+        tags = []
     if data is None:
-        data = {}
+        data = []
 
     brand_tag_start = '<span class="brand" style="color: red">'
     brand_tag_end = '</span>'
