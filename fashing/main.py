@@ -94,30 +94,7 @@ class Application(tk.Frame):
 
         self.DRAW = None
 
-        # Test Data
-        self.graph_data = [
-            [0, 1],
-            [.05, .95],
-            [.1, .9],
-            [.15, .85],
-            [.2, .8],
-            [.25, .75],
-            [.3, .7],
-            [.35, .65],
-            [.4, .6],
-            [.45, .55],
-            [.5, .5],
-            [.55, .45],
-            [.6, .4],
-            [.65, .35],
-            [.7, .3],
-            [.75, .25],
-            [.8, .2],
-            [.85, .15],
-            [.9, .1],
-            [.95, .05],
-            [1, 0],
-        ]
+        self.graph_data = []
 
         tk.Frame.__init__(self, master, *args, **kwargs)
         self.statusbar = Statusbar(self)
