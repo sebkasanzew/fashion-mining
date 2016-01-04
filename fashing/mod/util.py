@@ -116,8 +116,6 @@ def compare_docs(gold_document=None, w2v_document=None):
         for w2v_doc in w2v_document:
             if gold_doc["_id"] == w2v_doc["_id"]:  # check if the sentences are identical
                 append = compare_indices(gold_doc["indicies"], w2v_doc["indicies"])
-                print "append:"
-                pprint(append)
                 compared.append(append)
                 print "compared:"
                 print pprint(compared)
@@ -125,35 +123,11 @@ def compare_docs(gold_document=None, w2v_document=None):
     graph_data = []
 
     for i in step_range(0, 1, 0.05):
-        pr = calc_precision_recall(i, compared, [])  # TODO: calculate fn
+        pr = calc_precision_recall(i, compared)
+        # pr = .5
         graph_data.append([i, pr])
 
     return graph_data
-
-    # TODO: replace this static return with the calculated one
-    # return [
-    #     [0, 1],
-    #     [.05, .95],
-    #     [.1, .9],
-    #     [.15, .85],
-    #     [.2, .8],
-    #     [.25, .75],
-    #     [.3, .7],
-    #     [.35, .65],
-    #     [.4, .6],
-    #     [.45, .55],
-    #     [.5, .5],
-    #     [.55, .95],  # small recognizable change
-    #     [.6, .4],
-    #     [.65, .35],
-    #     [.7, .3],
-    #     [.75, .25],
-    #     [.8, .2],
-    #     [.85, .15],
-    #     [.9, .1],
-    #     [.95, .05],
-    #     [1, 0],
-    # ]
 
 
 def compare_indices(gold_indices, w2v_indices):
@@ -170,52 +144,108 @@ def compare_indices(gold_indices, w2v_indices):
     gold_indices = sorted(gold_indices)
     w2v_indices = sorted(w2v_indices)
 
-    def check_tp_and_fp(g_indices, w2v_index, tp_found):
-        for i, gold_val in enumerate(g_indices):
-            if w2v_index[0] == g_indices[i][0] and w2v_index[1] == g_indices[i][1]:
-                tp_found[0] += 1  # wurscht
+    def check_tp_and_fp(gold_indices_list, w2v_index):
+        for i, g_val in enumerate(gold_indices_list):
+            if w2v_index[0] == gold_indices_list[i][0] and w2v_index[1] == gold_indices_list[i][1]:
                 return {"cos": w2v_indices[key][2], "count": {"fn": 0, "fp": 0, "tp": 1}}
 
         return {"cos": w2v_index[2], "count": {"fn": 0, "fp": 1, "tp": 0}}
+
+    def check_fn(w2v_indices_list, g_index):
+        w2v_check = []
+
+        # remove the "cos"-key for the check afterwards
+        for i, val in enumerate(w2v_indices_list):
+            w2v_check.append([val[0], val[1]])
+
+        if g_index not in w2v_check:
+            return {"cos": None, "count": {"fn": 1, "fp": 0, "tp": 0}}
+
+        return False
 
     print "compare_indices(): -----------------------------------"
 
     print "gold:", gold_indices
     print "w2v:", w2v_indices
 
-    true_positives_found = [0]
-
     doc_compare = []
 
     for key, w2v_val in enumerate(w2v_indices):
-        print "w2v index:", key
-        print "tp found:", true_positives_found[0]
-        result = check_tp_and_fp(gold_indices, w2v_indices[key], true_positives_found)
-
+        result = check_tp_and_fp(gold_indices, w2v_indices[key])
         doc_compare.append(result)
 
-    print "compare_indices() --> doc_compare:"
-    pprint(doc_compare)
+    for key, gold_val in enumerate(gold_indices):
+        result = check_fn(w2v_indices, gold_indices[key])
+        # print "result"
+        # pprint(result)
+        if result:
+            doc_compare.append(result)
 
     return doc_compare
 
 
-def calc_precision_recall(cos, data, gold_indices):
+def calc_precision_recall(cos, data):
     # TODO: calculate precision/recall
-    filtered_data = []
-    for i in data[0]:
-        if float(i["cos"]) >= cos:
-            filtered_data.append(i)
+    print "\ncos:", cos
 
-    tp = calc_tp(filtered_data)
-    fp = calc_fp(filtered_data)
-    fn = calc_fn(tp, len(gold_indices))
+    result = []
 
-    result = [calc_precision(tp, fp), calc_recall(tp, fn)]
+    for i in data:
+        result.append(count_all_tp_fp_fn(cos, i))
+
+    r = sum(result[0])/len(result)
+
+    # [calc_precision(tp, fp), calc_recall(tp, fn)]
 
     print "calc_precision_recall():", result
 
-    return result
+    return result[0]
+
+
+def count_all_tp_fp_fn(cos, data):
+    filtered_data = []
+    ignored_data = []
+
+    print "##################### P/R ######################"
+    # print "data:"
+    # pprint(data)
+
+    for i in data:
+        # print "cos:", cos
+        # print "i:", i
+        # print "i['cos']:", i["cos"]
+        # print "data", data[0]
+
+        if i["cos"] >= cos or i["cos"] is None:
+            filtered_data.append(i)
+        else:
+            ignored_data.append(i)
+
+    # print "filtered_data:"
+    # pprint(filtered_data)
+    #
+    # print "ignored_data:"
+    # pprint(ignored_data)
+
+    tp = calc_tp(filtered_data)
+    fp = calc_fp(filtered_data)
+    fn = calc_fn(data, ignored_data)
+
+    print "tp:", tp
+    print "fp:", fp
+    print "fn:", fn
+
+    # for i in data:
+    #     # print "i:", i
+    #     tp += i["count"]["tp"]
+    #     fp += i["count"]["fp"]
+    #     fn += i["count"]["fn"]
+
+    precision = calc_precision(tp, fp)
+    recall = calc_recall(tp, fn)
+
+    pprint({"tp": tp, "fp": fp, "fn": fn})
+    return [precision, recall]
 
 
 def calc_tp(doc):
@@ -234,8 +264,18 @@ def calc_fp(doc):
     return count
 
 
-def calc_fn(tp_count, relevant_elements):
-    return relevant_elements - tp_count
+def calc_fn(doc, ignored_doc):
+    count = 0
+
+    for i in doc:
+        if i["count"]["fn"] == 1:
+            count += 1
+
+    for i in ignored_doc:
+        if i["count"]["tp"] == 1:
+            count += 1
+
+    return count
 
 
 def extract_indices(array=None):
@@ -436,7 +476,11 @@ def calc_precision(tp, fp):
     :return: The precision value for the given parameters.
     :rtype: float
     """
-    precision = tp / (tp + fp)
+    precision = 0
+    if (tp == 0) and (fp == 0):
+        return precision
+    else:
+        precision = float(tp) / (tp + fp)
     return precision
 
 
@@ -450,7 +494,7 @@ def calc_recall(tp, fn):
     :return: The recall value for the given parameters.
     :rtype: float
     """
-    recall = tp / (tp + fn)
+    recall = float(tp) / (tp + fn)
     return recall
 
 
@@ -467,6 +511,6 @@ def step_range(start, stop, step):
     :rtype: list[int]
     """
     r = start
-    while r < stop:
-        yield r
+    while round(r, 2) <= stop:
+        yield round(r, 2)
         r += step
