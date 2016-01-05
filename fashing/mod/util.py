@@ -93,7 +93,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     if (w2v_document is None) or (w2v_document is False):
         w2v_document = [{"entities": ["a", "b", "c", "d"],
                          "_id": "b1",
-                         "cosDist": [.7, .9, .2, .4],
+                         "cosDist": [["wort", .7], ["wort", .9], ["wort", .2], ["wort", .4]],
                          "indicies": [
                              [[14, 18]],
                              [[1, 2], [4, 6]],
@@ -103,9 +103,11 @@ def compare_docs(gold_document=None, w2v_document=None):
 
     # add the cosDist to the indices array
     for w2v_doc in w2v_document:
-        for i, val in enumerate(w2v_doc):
-            # print doc2["cosDist"], i
-            cos = w2v_doc["cosDist"][i]
+        for i, val in enumerate(w2v_doc["indicies"]):
+            cos = uni2utf(w2v_doc["cosDist"][i][1])
+            if cos == "NONE":
+                cos = 0
+            cos = float(cos)
             for j in w2v_doc["indicies"][i]:
                 j.append(cos)
 
@@ -116,8 +118,8 @@ def compare_docs(gold_document=None, w2v_document=None):
             if gold_doc["_id"] == w2v_doc["_id"]:  # check if the sentences are identical
                 append = compare_indices(gold_doc["indicies"], w2v_doc["indicies"])
                 compared.append(append)
-                print "compared:"
-                print pprint(compared)
+                # print "compared:"
+                # print pprint(compared)
 
     graph_data = []
 
@@ -166,10 +168,10 @@ def compare_indices(gold_indices, w2v_indices):
 
         return False
 
-    print "compare_indices(): -----------------------------------"
+    # print "compare_indices(): -----------------------------------"
 
-    print "gold:", gold_indices
-    print "w2v:", w2v_indices
+    # print "gold:", gold_indices
+    # print "w2v:", w2v_indices
 
     doc_compare = []
 
@@ -189,7 +191,7 @@ def compare_indices(gold_indices, w2v_indices):
 
 def calc_precision_recall(cos, data):
     # TODO: calculate precision/recall
-    print "\ncos:", cos
+    # print "\ncos:", cos
 
     all_tp_fp_fn = []
 
@@ -210,7 +212,7 @@ def calc_precision_recall(cos, data):
 
     # [calc_precision(tp, fp), calc_recall(tp, fn)]
 
-    print "calc_precision_recall():", [recall, precision]
+    # print "calc_precision_recall():", [recall, precision]
 
     return [recall, precision]
 
@@ -219,7 +221,7 @@ def count_all_tp_fp_fn(cos, data):
     filtered_data = []
     ignored_data = []
 
-    print "##################### P/R ######################"
+    # print "##################### P/R ######################"
     # print "data:"
     # pprint(data)
 
@@ -244,7 +246,7 @@ def count_all_tp_fp_fn(cos, data):
     fp = calc_fp(filtered_data)
     fn = calc_fn(data, ignored_data)
 
-    pprint({"tp": tp, "fp": fp, "fn": fn})
+    # pprint({"tp": tp, "fp": fp, "fn": fn})
     return {"tp": tp, "fp": fp, "fn": fn}
 
 
