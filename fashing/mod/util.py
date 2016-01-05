@@ -130,6 +130,7 @@ def compare_docs(gold_document=None, w2v_document=None):
 
     graph_data = sorted(graph_data)
 
+    print "\n[recall, precision]"
     pprint(graph_data)
 
     return graph_data
@@ -206,6 +207,11 @@ def calc_precision_recall(cos, data):
         tp += i["tp"]
         fp += i["fp"]
         fn += i["fn"]
+
+    print "\nValues for cosinus =", cos, ":"
+    print "tp:", tp
+    print "fp:", fp
+    print "fn:", fn
 
     precision = calc_precision(tp, fp)
     recall = calc_recall(tp, fn)
