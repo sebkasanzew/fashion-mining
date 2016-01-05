@@ -105,7 +105,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     for w2v_doc in w2v_document:
         for i, val in enumerate(w2v_doc["indicies"]):
             cos = uni2utf(w2v_doc["cosDist"][i][1])
-            if cos == "NONE":
+            if cos == "NONE":  # TODO needs some more thinking
                 cos = 0
             cos = float(cos)
             for j in w2v_doc["indicies"][i]:
