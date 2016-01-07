@@ -7,6 +7,7 @@ import json
 import os
 import sys
 import gensim
+import re
 import texttable as tt
 from gensim import corpora, models, similarities
 from pprint import pprint
@@ -19,159 +20,65 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 PROJECT_DIR = os.path.dirname(__file__) + "/../../"
 GLOVE_DIR = PROJECT_DIR + "data/tmp/"
 
-#TODO: refactor code which draws the table
+
+# TODO: refactor code which draws the table
 def word2vec():
     """
     executes the main logic of word2vec
     :return: result-json with tagged words, indices and cosine distance
     """
+
     # Loading external files
-    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as text_file:
-        text = json.load(text_file)
-    with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as text_file:
-        fashion_dictionary = text_file.readlines()
-    with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "a") as vector_words:
-        vector_words.seek(0)
-        vector_words.truncate()
-    #with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
-    #    fashion_dictionary = text_file.readlines()
+    logging.info("Loading documents and dictionary...")
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
+        docs = json.load(documents_file)
 
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
+        tokens = json.load(documents_file)
 
-    # read words from fashion dictionary
-    fashion_words = []
-    for word in fashion_dictionary:
-        for dic in word.lower().split():
-            fashion_words.append([dic.strip('[],')[1:-1]])
+    with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as dictionary_file:
+        dictionary = json.load(dictionary_file)
+
+    logging.info("NLTK Tokenizing...")
+    nltk_tokenizing(docs)
 
     # load model for word2vec
     model = load_model(1)
-
-    number_of_documents = 0
-    max_documents = 50
     sim = 0
 
-    for doc in text:
+    logging.info("Determining similarity...")
+    result = []
+    for doc in tokens:
         cos_dist = []
+        word = ""
         extracted_tokens = doc["entities"]
         for token in extracted_tokens:
-            for f in fashion_words:
+            for f in dictionary:
                 try:
                     # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
-                    cos = model.similarity(token.lower(), f[0].lower())
+                    cos = model.similarity(token.lower(), f.lower())
                     if cos > sim:
                         sim = cos
-                        word = f[0]
+                        word = f
                 except:
                     pass
 
             # appending JOIN-Partner
             if sim == 0:
-                cos_dist.append(["NONE", "NONE"])
+                cos_dist.append(["None", "None"])
             else:
                 cos_dist.append([str(word), str(sim)])
                 sim = 0
 
-        doc["cosDist"] = cos_dist
+        doc["cos_dist"] = cos_dist
+        result.append(doc)
 
-        pre = ""
-        if number_of_documents == 0:
-            pre = "["
-            suf = ","
-        elif number_of_documents == max_documents - 1:
-            suf = "]"
-        else:
-            suf = ","
-            # list_of_words.append(token)
-
-        number_of_documents += 1
-
-        with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "a") as docs_tags:
-            docs_tags.writelines(pre + json.dumps(doc).encode('utf-8') + suf + "\n")
-
-        if number_of_documents == max_documents:
-            break
-
-    ###########################################################################################
-    # sim = 0
-    # word = ""
-    #
-    # data = []
-    #
-    # tab_array = []
-    # row_array = []
-    #
-    # counter = 0
-    # for w in list_of_words:
-    #   data.append([])
-    #   data[counter].append(w)
-    #
-    #   # appending Word
-    #   row_array.append(w.encode("utf-8"))
-    #   # appending POS-Tag
-    #   row_array.append(w.encode("utf-8"))
-    #
-    #   try:
-    #     # appending top three words
-    #     top_three = model.most_similar(w, topn=3)
-    #     data[counter].append(top_three)
-    #
-    #     row_array.append(str(top_three[0][0]))
-    #     row_array.append(round(top_three[0][1], 4))
-    #     row_array.append(str(top_three[1][0]))
-    #     row_array.append(round(top_three[1][1], 4))
-    #     row_array.append(str(top_three[2][0]))
-    #     row_array.append(round(top_three[2][1], 4))
-    #
-    #   except:
-    #     try:
-    #       len(data[counter][1])
-    #     except:
-    #       data[counter].append([("-----", "-----"), ("-----", "-----"), ("-----", "-----")])
-    #
-    #     for x in range(0, 8 - len(row_array)):
-    #       # print (w + " is not in vocabulary!")
-    #       row_array.append("-----")
-    #
-    #   for f in fashion_words:
-    #     try:
-    #       # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
-    #       cos = model.similarity(w.lower(), f[0].lower())
-    #       if cos > sim:
-    #         sim = cos
-    #         word = f[0]
-    #     except:
-    #       pass
-    #
-    #   # appending JOIN-Partner
-    #   if sim == 0:
-    #     data[counter].append("NONE")
-    #     row_array.append("NONE")
-    #   else:
-    #     data[counter].append(str(word) + "\n" + str(sim))
-    #     row_array.append(str(word) + "\n" + str(sim))
-    #
-    #     sim = 0
-    #
-    #
-    #
-    #   # add row to tab_array, reset row
-    #   tab_array.append(row_array)
-    #
-    #   counter += 1
-    #   row_array = []
-
-    print
-    print "###########################################################################################################################"
-    print "#                                            Textmining with Word2Vec and NLTK                                            #"
-    print "###########################################################################################################################"
-
-    # tab_array = collect_table_data(data)
-    # draw_table(tab_array)
+    with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "w") as docs_tags:
+        json.dump(result, docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
     print "Returning auto tagged json..."
-    with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "r") as text_file:
-        result = json.load(text_file)
     return result
+
 
 def nltk_tokenizing(document):
     """
@@ -180,9 +87,61 @@ def nltk_tokenizing(document):
     :param document:
     :return: list of words
     """
-    #
-    # NLTK Tokenizing
-    #
+
+    #x = 0
+    result = []
+    for data in document:
+
+        #if x == 3:
+        #    break
+        #x += 1
+
+        extracted_text = data["extracted_text"]
+        sentences = nltk.sent_tokenize(extracted_text)
+
+        entities = []
+        indices = []
+        token_words = []
+
+        for s in sentences:
+            for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
+                if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
+                    token_words.append(word[0])
+
+        dictionary = corpora.Dictionary([token_words])
+
+        for word in dictionary:
+            i_tmp = []
+            contains = False
+            if re.match(".*\|.*", dictionary[word]) is None:
+
+                for m in re.finditer(dictionary[word], extracted_text):
+                    try:
+                        if not extracted_text[m.start() - 1].isalpha() and not extracted_text[m.end()].isalpha():
+                            contains = True
+                            i_tmp.append([m.start(), m.end()])
+                    except:
+                        print(data)
+                        print("The word: " + dictionary[word] + " contains pipes and will not be processed")
+
+                if contains:
+                    entities.append(dictionary[word].encode('utf-8'))
+                    indices.append(i_tmp)
+
+        tmp = {"_id": data["_id"]["$oid"], "entities": entities, "indices": indices}
+        result.append(tmp)
+
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "w") as example_docs_tags:
+        json.dump(result, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
+
+
+def nltk_tokenizing_old(document):
+    """
+    Takes a JSON-Document, which contains plaintext at key "extracted_text" and returns a list of single words
+    after tokenizing with NLTK
+    :param document:
+    :return: list of words
+    """
     list_of_words = []
 
     for data in document:
@@ -199,10 +158,11 @@ def nltk_tokenizing(document):
 
 def load_model(x):
     """
-    loads a model which depends on the given parameter:
-    0: Glove Model
-    1: Own Fashion Model created from Zalando Documents
-    :param x: integer
+    loads a model which depends on the given parameter
+    :param x: an integer according to the model
+        0: Glove Model
+        1: Own Fashion Model created from Zalando Documents
+    :type x: int
     :return: path of model
     """
     if x == 0:
@@ -225,8 +185,9 @@ def load_model(x):
     if x == 1:
         return gensim.models.Word2Vec.load(PROJECT_DIR + 'data/models/fashion_model')
 
-    #if x == 2:
-    #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
+        # if x == 2:
+        #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
+
 
 # TODO collecting table data
 def collect_table_data(data):

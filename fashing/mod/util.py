@@ -46,7 +46,7 @@ def sort_3d_array(array=None):
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
-def merge_intersected_indicies(array_one=None, array_two=None):
+def merge_intersected_indices(array_one=None, array_two=None):
     """
     Merges two list elements into one list if they ave an intersection.
     :param array_one: first list element
@@ -84,7 +84,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     if (gold_document is None) or (gold_document is False):
         gold_document = [{"entities": ["a", "b"],
                           "_id": "b1",
-                          "indicies": [
+                          "indices": [
                               [[1, 2], [4, 6]],
                               [[8, 10]],
                               [[22, 32]]
@@ -93,22 +93,22 @@ def compare_docs(gold_document=None, w2v_document=None):
     if (w2v_document is None) or (w2v_document is False):
         w2v_document = [{"entities": ["a", "b", "c", "d"],
                          "_id": "b1",
-                         "cosDist": [["wort", .7], ["wort", .9], ["wort", .2], ["wort", .4]],
-                         "indicies": [
+                         "cos_dist": [["wort", .7], ["wort", .9], ["wort", .2], ["wort", .4]],
+                         "indices": [
                              [[14, 18]],
                              [[1, 2], [4, 6]],
                              [[8, 10]],
                              [[11, 13], [14, 16]]
                          ]}]
 
-    # add the cosDist to the indices array
+    # add the cos_dist to the indices array
     for w2v_doc in w2v_document:
-        for i, val in enumerate(w2v_doc["indicies"]):
-            cos = uni2utf(w2v_doc["cosDist"][i][1])
-            if cos == "NONE":  # TODO needs some more thinking
+        for i, val in enumerate(w2v_doc["indices"]):
+            cos = uni2utf(w2v_doc["cos_dist"][i][1])
+            if cos == "None":  # TODO needs some more thinking
                 cos = 0
             cos = float(cos)
-            for j in w2v_doc["indicies"][i]:
+            for j in w2v_doc["indices"][i]:
                 j.append(cos)
 
     compared = []
@@ -116,7 +116,7 @@ def compare_docs(gold_document=None, w2v_document=None):
     for gold_doc in gold_document:
         for w2v_doc in w2v_document:
             if gold_doc["_id"] == w2v_doc["_id"]:  # check if the sentences are identical
-                append = compare_indices(gold_doc["indicies"], w2v_doc["indicies"])
+                append = compare_indices(gold_doc["indices"], w2v_doc["indices"])
                 compared.append(append)
                 # print "compared:"
                 # print pprint(compared)
@@ -435,23 +435,23 @@ def create_html(data=None, tags=None):
 
         for tag in tags:
             if tag["_id"] == doc_id:
-                indicies = sort_2d_array(extract_indices(tag["indicies"]))
+                indices = sort_2d_array(extract_indices(tag["indices"]))
 
-                # remove all intersecting indicies
+                # remove all intersecting indices
                 restart = True
                 while restart:
-                    for i, val in enumerate(indicies):
-                        if i < len(indicies) - 1:
-                            value = merge_intersected_indicies(indicies[i], indicies[i + 1])
+                    for i, val in enumerate(indices):
+                        if i < len(indices) - 1:
+                            value = merge_intersected_indices(indices[i], indices[i + 1])
                             if value:
-                                indicies[i] = value
-                                del indicies[i + 1]
+                                indices[i] = value
+                                del indices[i + 1]
                                 break
                         else:
                             restart = False
 
                 added = 0
-                for index in indicies:
+                for index in indices:
                     j = index[0] + added
                     text = insert_in_string(text, j, brand_tag_start)
                     added += len(brand_tag_start)
