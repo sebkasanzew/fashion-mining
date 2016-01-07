@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import importlib
-import fashing.mod.nltk_example
-
 
 def main():
     """This is the main function"""

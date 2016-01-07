@@ -26,11 +26,11 @@ def word2vec():
     :return: result-json with tagged words, indices and cosine distance
     """
     # Loading external files
-    with open(PROJECT_DIR + "data/example_docs_tokenized.json", "r") as text_file:
+    with open(PROJECT_DIR + "data/example_docs/example_docs_tokenized.json", "r") as text_file:
         text = json.load(text_file)
-    with open(PROJECT_DIR + "data/one_word_entities_reduced.txt", "r") as text_file:
+    with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as text_file:
         fashion_dictionary = text_file.readlines()
-    with open(PROJECT_DIR + "data/vector_words_tags.json", "a") as vector_words:
+    with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "a") as vector_words:
         vector_words.seek(0)
         vector_words.truncate()
     #with open(PROJECT_DIR + "data/fashion-words.txt", "r") as text_file:
@@ -85,8 +85,8 @@ def word2vec():
 
         number_of_documents += 1
 
-        with open(PROJECT_DIR + "data/vector_words_tags.json", "a") as example_docs_tags:
-            example_docs_tags.writelines(pre + json.dumps(doc).encode('utf-8') + suf + "\n")
+        with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "a") as docs_tags:
+            docs_tags.writelines(pre + json.dumps(doc).encode('utf-8') + suf + "\n")
 
         if number_of_documents == max_documents:
             break
@@ -169,7 +169,7 @@ def word2vec():
     # draw_table(tab_array)
 
     print "Returning auto tagged json..."
-    with open(PROJECT_DIR + "data/vector_words_tags.json", "r") as text_file:
+    with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "r") as text_file:
         result = json.load(text_file)
     return result
 

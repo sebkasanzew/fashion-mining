@@ -12,13 +12,13 @@ from gensim.models import Word2Vec
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 # read data file and put every json into an array
-with open("../../data/plain_text_optimized.json", "r") as text_file:
+with open("../../data/input_data/plain_text_optimized_eng.json", "r") as text_file:
   text = text_file.readlines()
 
 with open("../../data/fashion-words.txt", "r") as text_file:
   f_words = text_file.readlines()
 
-token_file = open("../../data/token_words.txt", "w")
+token_file = open("../../data/dictionaries/token_words.txt", "w")
 
 length = len(text)
 
@@ -57,8 +57,8 @@ class MySentence(object):
      except EOFError:
          break
 
-token_file = open("../../data/token_words.txt", "r")
+token_file = open("../../data/dictionaries/token_words.txt", "r")
 sentences = MySentence()
 model = Word2Vec([doc for doc in sentences])
-model.save('../../data/fashion_model')
+model.save('../../data/models/fashion_model')
 
