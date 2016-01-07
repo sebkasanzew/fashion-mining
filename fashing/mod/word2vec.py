@@ -26,7 +26,7 @@ def word2vec():
     :return: result-json with tagged words, indices and cosine distance
     """
     # Loading external files
-    with open(PROJECT_DIR + "data/example_docs/example_docs_tokenized.json", "r") as text_file:
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as text_file:
         text = json.load(text_file)
     with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as text_file:
         fashion_dictionary = text_file.readlines()
