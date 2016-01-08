@@ -33,14 +33,14 @@ def word2vec():
     with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
         docs = json.load(documents_file)
 
-    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
-        tokens = json.load(documents_file)
+    #with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
+    #    tokens = json.load(documents_file)
 
     with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as dictionary_file:
         dictionary = json.load(dictionary_file)
 
     logging.info("NLTK Tokenizing...")
-    nltk_tokenizing(docs)
+    tokens = nltk_tokenizing(docs)
 
     # load model for word2vec
     model = load_model(1)
@@ -73,10 +73,11 @@ def word2vec():
         doc["cos_dist"] = cos_dist
         result.append(doc)
 
+    logging.info("Writing auto tagged json...")
     with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "w") as docs_tags:
         json.dump(result, docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
-    print "Returning auto tagged json..."
+    logging.info("Word2Vec finished!")
     return result
 
 
@@ -134,6 +135,8 @@ def nltk_tokenizing(document):
     with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "w") as example_docs_tags:
         json.dump(result, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
+    return result
+
 
 def nltk_tokenizing_old(document):
     """
@@ -185,8 +188,8 @@ def load_model(x):
     if x == 1:
         return gensim.models.Word2Vec.load(PROJECT_DIR + 'data/models/fashion_model')
 
-        # if x == 2:
-        #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
+    # if x == 2:
+    #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
 
 
 # TODO collecting table data
