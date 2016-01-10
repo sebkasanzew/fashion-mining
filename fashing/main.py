@@ -9,6 +9,7 @@ import sys
 # import subprocess as sub
 import mod.util as util
 import mod.word2vec as w2v
+import json
 
 COLOR_WHITE = '#FFF'
 COLOR_BLACK = '#000'
@@ -121,6 +122,14 @@ class Application(tk.Frame):
         path = tkFileDialog.askopenfilename(**kwargs)
         return util.open_json(path)
 
+    def open_file_with_path(self, path, **kwargs):
+        try:
+            with open(path, "r") as json_file:
+                return json.load(json_file)
+        except IOError as e:
+            print "File error occurred:", e.message
+            return False
+
     def open_json(self, title):
         file_json_options = {
             'filetypes': [("json files", "*.json")],
@@ -132,9 +141,7 @@ class Application(tk.Frame):
 
     def save_file(self, path, text):
         try:
-            with open(path, "a") as s_file:
-                s_file.seek(0)
-                s_file.truncate()
+            with open(path, "w") as s_file:
                 s_file.write(text)
         except IOError as e:
             print "IOError:" + e.message
@@ -166,8 +173,11 @@ class Application(tk.Frame):
         sys.exit(0)
 
     def compare_docs(self):
-        gold = self.open_json(title='Choose the JSON with the gold standard')
-        word2vec = self.open_json(title='Choose the JSON with the word2vec tags')
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        w2v_document_path = "../data/output_data/vector_words_tags.json"
+
+        gold = self.open_file_with_path(path=gold_document_path)
+        word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
         self.update_canvas()
@@ -184,9 +194,9 @@ class Application(tk.Frame):
         self.file_menu.add_command(label="Exit", command=self.quit)
 
         self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.analyse_menu.add_command(label="Calculate Precision/Recall", command=execute_w2v)
-        self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
-        self.analyse_menu.add_command(label="Compare", command=lambda: self.compare_docs())
+        self.analyse_menu.add_command(label="Execute Word2Vec with Gensim", command=execute_w2v)
+        # self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
+        self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
