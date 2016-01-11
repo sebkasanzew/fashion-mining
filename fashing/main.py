@@ -182,6 +182,26 @@ class Application(tk.Frame):
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
         self.update_canvas()
 
+    def calc_precision(self):
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        w2v_document_path = "../data/output_data/vector_words_tags.json"
+
+        gold = self.open_file_with_path(path=gold_document_path)
+        word2vec = self.open_file_with_path(path=w2v_document_path)
+
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision")
+        self.update_canvas(x_headline="Cosinus", y_headline="Precision")
+
+    def calc_recall(self):
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        w2v_document_path = "../data/output_data/vector_words_tags.json"
+
+        gold = self.open_file_with_path(path=gold_document_path)
+        word2vec = self.open_file_with_path(path=w2v_document_path)
+
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall")
+        self.update_canvas(x_headline="Cosinus", y_headline="Recall")
+
     def create_menu_bar(self):
         self.menubar = tk.Menu(self, font=FONT_MENU)
 
@@ -197,6 +217,8 @@ class Application(tk.Frame):
         self.analyse_menu.add_command(label="Execute Word2Vec with Gensim", command=execute_w2v)
         # self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
+        self.analyse_menu.add_command(label="Calculate Precision", command=lambda: self.calc_precision())
+        self.analyse_menu.add_command(label="Calculate Recall", command=lambda: self.calc_recall())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
