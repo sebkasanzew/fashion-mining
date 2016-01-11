@@ -463,6 +463,41 @@ def export_html(path=str()):
     lxml.html.open_in_browser(path)
 
 
+def count_existing_words(gold_words, dictionary):
+    """
+
+    :param gold_words:
+    :param dictionary:
+    :type gold_words: dict
+    :type dictionary: list
+    :return:
+    :rtype: list
+    """
+
+    # print "gold:"
+    # pprint(gold_words)
+
+    # print "dict:"
+    # pprint(dictionary)
+
+    # dictionary = ['Audi']  # TODO get the right dict list
+
+    existing_words = 0
+    new_words = 0
+
+    for key, sentence in enumerate(gold_words):
+        for i in gold_words[key]["entities"]:
+            if i in dictionary:
+                existing_words += 1
+            else:
+                new_words += 1
+
+    total = new_words + existing_words
+    new_in_percent = (new_words / float(total)) * 100
+
+    return {"exist": existing_words, "new": new_words, "new in %": round(new_in_percent, 1)}
+
+
 def create_html(data=None, tags=None):
     """
     Creates a HTML document out of specific json data.

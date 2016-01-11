@@ -189,7 +189,7 @@ class Application(tk.Frame):
         gold = self.open_file_with_path(path=gold_document_path)
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
-        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision")
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
         self.update_canvas(x_headline="Cosinus", y_headline="Precision")
 
     def calc_recall(self):
@@ -199,8 +199,17 @@ class Application(tk.Frame):
         gold = self.open_file_with_path(path=gold_document_path)
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
-        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall")
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
         self.update_canvas(x_headline="Cosinus", y_headline="Recall")
+
+    def count_existing_words(self):
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        fashion_dictionary_path = "../data/dictionaries/one_word_entities.txt"
+
+        gold_document = self.open_file_with_path(path=gold_document_path)
+        fashion_dictionary = self.open_file_with_path(path=fashion_dictionary_path)
+
+        print util.count_existing_words(gold_document, fashion_dictionary)
 
     def create_menu_bar(self):
         self.menubar = tk.Menu(self, font=FONT_MENU)
@@ -219,6 +228,7 @@ class Application(tk.Frame):
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
         self.analyse_menu.add_command(label="Calculate Precision", command=lambda: self.calc_precision())
         self.analyse_menu.add_command(label="Calculate Recall", command=lambda: self.calc_recall())
+        self.analyse_menu.add_command(label="Count new and existing words from gold standard", command=lambda: self.count_existing_words())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
