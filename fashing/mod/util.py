@@ -273,7 +273,7 @@ def calc_precision_recall(cos, data):
     print "tp:", tp
     print "fp:", fp
     print "fn:", fn
-    print "tn:", (tp + fn) - fp
+    # print "tn:", (tp + fn) - fp
 
     precision = calc_precision(tp, fp)
     recall = calc_recall(tp, fn)
