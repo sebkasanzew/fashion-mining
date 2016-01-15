@@ -36,30 +36,33 @@ def word2vec():
     #with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
     #    tokens = json.load(documents_file)
 
-    with open(PROJECT_DIR + "data/dictionaries/one_word_entities_reduced.txt", "r") as dictionary_file:
+    with open(PROJECT_DIR + "data/dictionaries/entities.txt", "r") as dictionary_file:
         dictionary = json.load(dictionary_file)
 
     logging.info("NLTK Tokenizing...")
     tokens = nltk_tokenizing(docs)
 
     # load model for word2vec
-    model = load_model(1)
+    model = load_model(0)
     sim = 0
 
     logging.info("Determining similarity...")
     result = []
+
     for doc in tokens:
         cos_dist = []
         word = ""
         extracted_tokens = doc["entities"]
         for token in extracted_tokens:
-            for f in dictionary:
+            for d in dictionary:
                 try:
                     # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
-                    cos = model.similarity(token.lower(), f.lower())
+
+                    cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
+
                     if cos > sim:
                         sim = cos
-                        word = f
+                        word = token
                 except:
                     pass
 
@@ -89,13 +92,13 @@ def nltk_tokenizing(document):
     :return: list of words
     """
 
-    #x = 0
+    # x = 0
     result = []
     for data in document:
 
-        #if x == 3:
-        #    break
-        #x += 1
+        # if x == 3:
+        #     break
+        # x += 1
 
         extracted_text = data["extracted_text"]
         sentences = nltk.sent_tokenize(extracted_text)
@@ -105,9 +108,17 @@ def nltk_tokenizing(document):
         token_words = []
 
         for s in sentences:
-            for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
-                if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
-                    token_words.append(word[0])
+            for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
+
+                if type(word) is tuple:
+                    if check_tag(word):
+                        token_words.append(word[0])
+                else:
+                    if check_tag(word):
+                        word_list = []
+                        for w in word:
+                            word_list.append(w[0])
+                        token_words.append(" ".join(word_list))
 
         dictionary = corpora.Dictionary([token_words])
 
@@ -137,6 +148,15 @@ def nltk_tokenizing(document):
 
     return result
 
+def check_tag(word):
+    if type(word) is tuple:
+        return word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS"
+    else:
+        for w in word:
+            if w[1] == "NN" or w[1] == "NNP" or w[1] == "NNPS" or w[1] == "NNS":
+                return True
+        return False
+
 
 def nltk_tokenizing_old(document):
     """
@@ -153,6 +173,7 @@ def nltk_tokenizing_old(document):
         sentences = nltk.sent_tokenize(extracted_text)
 
         for s in sentences:
+
             for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
                 if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
                     list_of_words.append(word)
