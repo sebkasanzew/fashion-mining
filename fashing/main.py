@@ -6,10 +6,10 @@ import Tkinter as tk
 import ttk
 import tkFileDialog
 import sys
-# import subprocess as sub
 import mod.util as util
 import mod.word2vec as w2v
 import json
+# import subprocess as sub
 
 COLOR_WHITE = '#FFF'
 COLOR_BLACK = '#000'
@@ -82,9 +82,9 @@ class MainArea(tk.Frame):
 class Application(tk.Frame):
     canvas_padding = 100
     canvas_grid_sections = 5
-    canvas_x_headline = "Recall"
-    canvas_y_headline = "Precision"
-    graph_headline = "Precision/Recall Graph"
+    canvas_x_headline = ""
+    canvas_y_headline = ""
+    graph_headline = ""
 
     def __init__(self, master=None, *args, **kwargs):
         self.CANVAS_WIDTH = 600
@@ -180,7 +180,7 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
-        self.update_canvas()
+        self.update_canvas(x_headline="Recall", y_headline="Precision", graph_headline="Precision/Recall Graph")
 
     def calc_precision(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
@@ -190,7 +190,7 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Precision")
+        self.update_canvas(x_headline="Cosinus", y_headline="Precision", graph_headline="Precision Graph")
 
     def calc_recall(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
@@ -200,7 +200,7 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Recall")
+        self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph")
 
     def count_existing_words(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
