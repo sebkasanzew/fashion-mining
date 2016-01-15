@@ -202,6 +202,10 @@ class Application(tk.Frame):
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
         self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph")
 
+    def clear_graph(self):
+        self.graph_data = []
+        self.update_canvas(x_headline="", y_headline="", graph_headline="")
+
     def count_existing_words(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         fashion_dictionary_path = "../data/dictionaries/one_word_entities.txt"
@@ -233,6 +237,8 @@ class Application(tk.Frame):
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
         self.graph_menu.add_command(label="Simple Mode", command=lambda: self.update_canvas(grid_sections=5))
+        self.graph_menu.add_separator()
+        self.graph_menu.add_command(label="Clear", command=lambda: self.clear_graph())
 
         self.help_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.help_menu.add_command(label="About", command=self.about)
