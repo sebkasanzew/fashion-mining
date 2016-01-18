@@ -177,7 +177,7 @@ def compare_indices(gold_indices, w2v_indices):
             w2v_check.append([val[0], val[1]])
 
         if g_index not in w2v_check:
-            return {"cos": None, "count": {"fn": 1, "fp": 0, "tp": 0}}
+            return {"cos": None, "count": {"fn": 0, "fp": 0, "tp": 0}}
 
         return False
 
@@ -221,7 +221,6 @@ def calc_cos_precision(cos, data):
     print "tp:", tp
     print "fp:", fp
     print "fn:", fn
-    print "tn:", (tp + fn) - fp
 
     precision = calc_precision(tp, fp)
 
@@ -247,7 +246,6 @@ def calc_cos_recall(cos, data):
     print "tp:", tp
     print "fp:", fp
     print "fn:", fn
-    print "tn:", (tp + fn) - fp
 
     recall = calc_recall(tp, fn)
 
