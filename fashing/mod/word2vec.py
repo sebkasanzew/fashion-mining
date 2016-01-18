@@ -33,7 +33,7 @@ def word2vec():
     with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
         docs = json.load(documents_file)
 
-    #with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
+    # with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
     #    tokens = json.load(documents_file)
 
     with open(PROJECT_DIR + "data/dictionaries/entities.txt", "r") as dictionary_file:
@@ -43,7 +43,7 @@ def word2vec():
     tokens = nltk_tokenizing(docs)
 
     # load model for word2vec
-    model = load_model(0)
+    model = load_model(1)
     sim = 0
 
     logging.info("Determining similarity...")
@@ -52,6 +52,7 @@ def word2vec():
     for doc in tokens:
         cos_dist = []
         word = ""
+        word_dict = ""
         extracted_tokens = doc["entities"]
         for token in extracted_tokens:
             for d in dictionary:
@@ -63,6 +64,8 @@ def word2vec():
                     if cos > sim:
                         sim = cos
                         word = token
+                        word_dict = d
+
                 except:
                     pass
 
@@ -71,6 +74,7 @@ def word2vec():
                 cos_dist.append(["None", "None"])
             else:
                 cos_dist.append([str(word), str(sim)])
+                print "Word: ", token, "| Word from Dict: ", word_dict
                 sim = 0
 
         doc["cos_dist"] = cos_dist
@@ -92,13 +96,13 @@ def nltk_tokenizing(document):
     :return: list of words
     """
 
-    # x = 0
+    x = 0
     result = []
     for data in document:
 
-        # if x == 3:
-        #     break
-        # x += 1
+        if x == 3:
+            break
+        x += 1
 
         extracted_text = data["extracted_text"]
         sentences = nltk.sent_tokenize(extracted_text)
@@ -114,7 +118,7 @@ def nltk_tokenizing(document):
                     if check_tag(word):
                         token_words.append(word[0])
                 else:
-                    if check_tag(word):
+                    if True: #check_tag(word):
                         word_list = []
                         for w in word:
                             word_list.append(w[0])

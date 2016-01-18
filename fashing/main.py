@@ -9,6 +9,7 @@ import sys
 import mod.util as util
 import mod.word2vec as w2v
 import json
+
 # import subprocess as sub
 
 COLOR_WHITE = '#FFF'
@@ -180,7 +181,8 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
-        self.update_canvas(x_headline="Recall", y_headline="Precision", graph_headline="Precision/Recall Graph")
+        self.update_canvas(x_headline="Recall", y_headline="Precision", graph_headline="Precision/Recall Graph",
+                           grid_sections=self.canvas_grid_sections)
 
     def calc_precision(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
@@ -190,7 +192,8 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Precision", graph_headline="Precision Graph")
+        self.update_canvas(x_headline="Cosinus", y_headline="Precision", graph_headline="Precision Graph",
+                           grid_sections=self.canvas_grid_sections)
 
     def calc_recall(self):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
@@ -200,7 +203,18 @@ class Application(tk.Frame):
         word2vec = self.open_file_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph")
+        self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph",
+                           grid_sections=self.canvas_grid_sections)
+
+    def calc_f1(self):
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        w2v_document_path = "../data/output_data/vector_words_tags.json"
+
+        gold = self.open_file_with_path(path=gold_document_path)
+        word2vec = self.open_file_with_path(path=w2v_document_path)
+
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="f1", steps=0.01)
+        self.update_canvas(x_headline="Cosinus", y_headline="F1", graph_headline="F1 Score")
 
     def clear_graph(self):
         self.graph_data = []
@@ -232,7 +246,9 @@ class Application(tk.Frame):
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
         self.analyse_menu.add_command(label="Calculate Precision", command=lambda: self.calc_precision())
         self.analyse_menu.add_command(label="Calculate Recall", command=lambda: self.calc_recall())
-        self.analyse_menu.add_command(label="Count new and existing words from gold standard", command=lambda: self.count_existing_words())
+        self.analyse_menu.add_command(label="Calculate F1 Score", command=lambda: self.calc_f1())
+        self.analyse_menu.add_command(label="Count new and existing words from gold standard",
+                                      command=lambda: self.count_existing_words())
 
         self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
@@ -256,22 +272,29 @@ class Application(tk.Frame):
 
     def update_canvas(self, padding=canvas_padding, x_headline=canvas_x_headline, y_headline=canvas_y_headline,
                       graph_headline=graph_headline, grid_sections=canvas_grid_sections):
-        canvas_padding = padding
-        canvas_x_headline = x_headline
-        canvas_y_headline = y_headline
-        canvas_grid_sections = grid_sections
-        graph_headline = graph_headline
+        print self.canvas_grid_sections, grid_sections
+
+        if grid_sections:
+            self.canvas_grid_sections = grid_sections
+        if padding:
+            self.canvas_padding = padding
+        if x_headline:
+            self.canvas_x_headline = x_headline
+        if y_headline:
+            self.canvas_y_headline = y_headline
+        if graph_headline:
+            self.graph_headline = graph_headline
 
         self.CANVAS.delete("all")
         self.CANVAS.config(width=self.CANVAS_WIDTH,
                            height=self.CANVAS_HEIGHT,
                            background=CANVAS_BACKGROUND_COLOR)
 
-        self.draw_canvas(padding=canvas_padding,
-                         x_headline=canvas_x_headline,
-                         y_headline=canvas_y_headline,
-                         graph_headline=graph_headline,
-                         grid_sections=canvas_grid_sections)
+        self.draw_canvas(padding=self.canvas_padding,
+                         x_headline=self.canvas_x_headline,
+                         y_headline=self.canvas_y_headline,
+                         graph_headline=self.graph_headline,
+                         grid_sections=self.canvas_grid_sections)
 
     def update_canvas_dimensions(self):
         self.CANVAS.config(width="", height="")

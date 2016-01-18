@@ -135,6 +135,10 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
         for i in step_range(0, 1, steps):
             pr = calc_cos_recall(i, compared)
             graph_data.append(pr)
+    elif mode == "f1":
+        for i in step_range(0, 1, steps):
+            f1 = calc_f1_score(i, compared)
+            graph_data.append(f1)
     else:
         for i in step_range(0, 1, steps):
             pr = calc_precision_recall(i, compared)
@@ -142,7 +146,6 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
 
     graph_data = sorted(graph_data)
 
-    print "\n[recall, precision]"
     pprint(graph_data)
 
     return graph_data
@@ -609,6 +612,36 @@ def calc_recall(tp, fn):
     """
     recall = float(tp) / (tp + fn)
     return recall
+
+
+def calc_f1_score(cos, data):
+    all_tp_fp_fn = []
+
+    for i in data:
+        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
+
+    tp = 0
+    fp = 0
+    fn = 0
+
+    for i in all_tp_fp_fn:
+        tp += i["tp"]
+        fp += i["fp"]
+        fn += i["fn"]
+
+    print "\nValues for cosinus =", cos, ":"
+    print "tp:", tp
+    print "fp:", fp
+    print "fn:", fn
+
+    recall = calc_recall(tp, fn)
+    precision = calc_precision(tp, fp)
+
+    print "recall", recall
+    print "precision", precision
+
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return [cos, f1_score]
 
 
 def step_range(start, stop, step):
