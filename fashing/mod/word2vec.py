@@ -78,7 +78,7 @@ def word2vec(model):
                     pass
 
             print"----------------"
-            print "word " + token + " - " +str(model.most_similar(token))
+            print "word " + str(token)
             print "cos: " + str(sim)
             print "dict: " + str(word_dict)
 
