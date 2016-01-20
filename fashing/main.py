@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import division
+
 import Tkinter as tk
-import ttk
-import tkFileDialog
+import json
 import sys
+import tkFileDialog
+import ttk
+
 import mod.util as util
 import mod.word2vec as w2v
-import json
 
 # import subprocess as sub
 
@@ -164,6 +166,9 @@ class Application(tk.Frame):
         path = self.select_dir(title="Select where to save the HTML file")
         self.save_file(path=path, text=util.create_html(data, tags))
 
+    def execute_w2v(self, model):
+        w2v.word2vec(model=model)
+
     def calc_precision_recall(self):
         self.graph_data = util.compare_docs(self.open_json("Select tagged data"), self.open_json("Select mined data"))
 
@@ -241,7 +246,10 @@ class Application(tk.Frame):
         self.file_menu.add_command(label="Exit", command=self.quit)
 
         self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.analyse_menu.add_command(label="Execute Word2Vec with Gensim", command=execute_w2v)
+        self.analyse_menu.add_command(label="Execute Word2Vec with self trained model",
+                                      command=lambda: self.execute_w2v(model="selftrained"))
+        self.analyse_menu.add_command(label="Execute Word2Vec with Glove model",
+                                      command=lambda: self.execute_w2v(model="glove"))
         # self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
         self.analyse_menu.add_command(label="Calculate Precision", command=lambda: self.calc_precision())
@@ -374,10 +382,6 @@ class Application(tk.Frame):
                 canvas.create_line(x_start, y_start, x_end, y_end, fill=COLOR_LINE_ONE, width=WIDTH_LINE_ONE)
 
             pre = val
-
-
-def execute_w2v():
-    w2v.word2vec(model="selftrained")
 
 
 if __name__ == "__main__":
