@@ -377,7 +377,7 @@ class Application(tk.Frame):
 
 
 def execute_w2v():
-    w2v.word2vec()
+    w2v.word2vec(model="selftrained")
 
 
 if __name__ == "__main__":
