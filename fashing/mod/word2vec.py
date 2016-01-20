@@ -54,33 +54,35 @@ def word2vec(model):
     for doc in tokens:
         cos_dist = []
         word = ""
-        word_dict = ""
+        #word_dict = ""
         extracted_tokens = doc["entities"]
 
         for token in extracted_tokens:
             for d in dictionary:
                 try:
-                    # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
                     if " " in token:
-                        token = token.split(" ")
-
-                    if " " in d:
-                        d = d.token.split(" ")
-
-                    cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
+                        if " " in d:
+                            cos = model.n_similarity(token.split(" "), d.split(" "))
+                        else:
+                            cos = 0
+                    else:
+                        cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
 
                     if cos > sim:
                         sim = cos
                         word = token
-                        word_dict = d
+                        #word_dict = d
 
                 except:
                     pass
 
-            print"----------------"
-            print "word " + str(token)
-            print "cos: " + str(sim)
-            print "dict: " + str(word_dict)
+            # try:
+            #     print"----------------"
+            #     print "word " + str(token)
+            #     print "cos: " + str(sim)
+            #     print "dict: " + str(word_dict)
+            # except:
+            #     pass
 
             # appending JOIN-Partner
             if sim == 0:
@@ -100,7 +102,6 @@ def word2vec(model):
     logging.info("Word2Vec finished!")
     return result
 
-
 def nltk_tokenizing(document):
     """
     Takes a JSON-Document, which contains plaintext at key "extracted_text" and returns a list of single words
@@ -109,13 +110,13 @@ def nltk_tokenizing(document):
     :return: list of words
     """
 
-    x = 0
+    # x = 0
     result = []
     for data in document:
 
-        if x == 3:
-            break
-        x += 1
+        # if x == 3:
+        #     break
+        # x += 1
 
         extracted_text = data["extracted_text"]
         sentences = nltk.sent_tokenize(extracted_text)
