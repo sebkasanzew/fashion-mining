@@ -21,10 +21,10 @@ PROJECT_DIR = os.path.dirname(__file__) + "/../../"
 GLOVE_DIR = PROJECT_DIR + "data/tmp/"
 
 
-# TODO: refactor code which draws the table
-def word2vec():
+def word2vec(model):
     """
     executes the main logic of word2vec
+    :param model: string
     :return: result-json with tagged words, indices and cosine distance
     """
 
@@ -33,6 +33,7 @@ def word2vec():
     with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
         docs = json.load(documents_file)
 
+    # To skip nltk tokenizing load this document and comment tokens = nltk_tokenizing at line 44 out
     # with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
     #    tokens = json.load(documents_file)
 
@@ -43,10 +44,11 @@ def word2vec():
     tokens = nltk_tokenizing(docs)
 
     # load model for word2vec
-    model = load_model(1)
-    sim = 0
+    logging.info("Loading " + model + " model...")
+    model = load_model(model)
 
     logging.info("Determining similarity...")
+    sim = 0
     result = []
 
     for doc in tokens:
@@ -54,10 +56,16 @@ def word2vec():
         word = ""
         word_dict = ""
         extracted_tokens = doc["entities"]
+
         for token in extracted_tokens:
             for d in dictionary:
                 try:
                     # cos = model.similarity("/en/" + w[0], "/en/" + f[0])
+                    if " " in token:
+                        token = token.split(" ")
+
+                    if " " in d:
+                        d = d.token.split(" ")
 
                     cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
 
@@ -69,12 +77,17 @@ def word2vec():
                 except:
                     pass
 
+            print"----------------"
+            print "word " + str(token)
+            print "cos: " + str(sim)
+            print "dict: " + str(word_dict)
+
             # appending JOIN-Partner
             if sim == 0:
                 cos_dist.append(["None", "None"])
             else:
                 cos_dist.append([str(word), str(sim)])
-                print "Word: ", token, "| Word from Dict: ", word_dict
+                #print "Word: ", token, "| Word from Dict: ", word_dict
                 sim = 0
 
         doc["cos_dist"] = cos_dist
@@ -112,13 +125,13 @@ def nltk_tokenizing(document):
         token_words = []
 
         for s in sentences:
-            for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
 
+            for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
                 if type(word) is tuple:
                     if check_tag(word):
                         token_words.append(word[0])
                 else:
-                    if True: #check_tag(word):
+                    if check_tag(word):
                         word_list = []
                         for w in word:
                             word_list.append(w[0])
@@ -152,6 +165,7 @@ def nltk_tokenizing(document):
 
     return result
 
+
 def check_tag(word):
     if type(word) is tuple:
         return word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS"
@@ -162,38 +176,16 @@ def check_tag(word):
         return False
 
 
-def nltk_tokenizing_old(document):
-    """
-    Takes a JSON-Document, which contains plaintext at key "extracted_text" and returns a list of single words
-    after tokenizing with NLTK
-    :param document:
-    :return: list of words
-    """
-    list_of_words = []
-
-    for data in document:
-        print(data)
-        extracted_text = data["extracted_text"]
-        sentences = nltk.sent_tokenize(extracted_text)
-
-        for s in sentences:
-
-            for word in (nltk.tag.pos_tag(nltk.word_tokenize(s))):
-                if word[1] == "NN" or word[1] == "NNP" or word[1] == "NNPS" or word[1] == "NNS":
-                    list_of_words.append(word)
-    return list_of_words
-
-
-def load_model(x):
+def load_model(mod):
     """
     loads a model which depends on the given parameter
-    :param x: an integer according to the model
-        0: Glove Model
-        1: Own Fashion Model created from Zalando Documents
-    :type x: int
+    :param mod: an string according to the model
+        glove: Glove Model
+        selftrained: Own Fashion Model created from Zalando Documents
+    :type mod: string
     :return: path of model
     """
-    if x == 0:
+    if mod == "glove":
         '''
         Convert Glove Model to Gensim Word2Vec
         GloVe is another algorithm that creates vector representations of words similar to word2vec.
@@ -210,7 +202,7 @@ def load_model(x):
 
         return gensim.models.Word2Vec.load_word2vec_format(join(GLOVE_DIR, 'common.840B.300d.txt'), binary=False)
 
-    if x == 1:
+    if mod == "selftrained":
         return gensim.models.Word2Vec.load(PROJECT_DIR + 'data/models/fashion_model')
 
     # if x == 2:
@@ -263,4 +255,4 @@ def custom_public_function_reachable_from_outside():
 
 if __name__ == "__main__":
     # Execute the main function if this file was executed from the terminal
-    word2vec()
+    word2vec(model="selftrained")
