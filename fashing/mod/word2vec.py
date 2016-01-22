@@ -54,7 +54,7 @@ def word2vec(model):
     for doc in tokens:
         cos_dist = []
         word = ""
-        #word_dict = ""
+        word_dict = ""
         extracted_tokens = doc["entities"]
 
         for token in extracted_tokens:
@@ -68,10 +68,10 @@ def word2vec(model):
                     else:
                         cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
 
-                    if cos > sim:
+                    if cos >= sim:
                         sim = cos
                         word = token
-                        #word_dict = d
+                        word_dict = d
 
                 except:
                     pass
@@ -85,12 +85,17 @@ def word2vec(model):
             #     pass
 
             # appending JOIN-Partner
-            if sim == 0:
+            try:
+
+                if sim == 0:
+                    cos_dist.append(["None", "None"])
+                else:
+                    cos_dist.append([str(word_dict), str(sim)])
+                    #print "Word: ", token, "| Word from Dict: ", word_dict
+                    sim = 0
+            except:
                 cos_dist.append(["None", "None"])
-            else:
-                cos_dist.append([str(word), str(sim)])
-                #print "Word: ", token, "| Word from Dict: ", word_dict
-                sim = 0
+                #print "fail"
 
         doc["cos_dist"] = cos_dist
         result.append(doc)
@@ -113,7 +118,7 @@ def nltk_tokenizing(document):
     # x = 0
     result = []
     for data in document:
-
+        #
         # if x == 3:
         #     break
         # x += 1
