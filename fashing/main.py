@@ -121,11 +121,13 @@ class Application(tk.Frame):
 
         # self.statusbar.pack(side="bottom", fill="x")
 
-    def open_file(self, **kwargs):
+    @staticmethod
+    def open_file(**kwargs):
         path = tkFileDialog.askopenfilename(**kwargs)
         return util.open_json(path)
 
-    def open_json_with_path(self, path, **kwargs):
+    @staticmethod
+    def open_json_with_path(path):
         try:
             with open(path, "r") as json_file:
                 return json.load(json_file)
@@ -133,7 +135,8 @@ class Application(tk.Frame):
             print "File error occurred:", e.message
             return False
 
-    def open_json(self, title):
+    @staticmethod
+    def open_json(title):
         file_json_options = {
             'filetypes': [("json files", "*.json")],
             'title': title
@@ -142,17 +145,20 @@ class Application(tk.Frame):
         path = tkFileDialog.askopenfilename(**file_json_options)
         return util.open_json(path)
 
-    def save_file(self, path, text):
+    @staticmethod
+    def save_file(path, text):
         try:
             with open(path, "w") as s_file:
                 s_file.write(text)
         except IOError as e:
             print "IOError:" + e.message
 
-    def save_graph(self):
+    @staticmethod
+    def save_graph():
         print "TODO"
 
-    def select_dir(self, title):
+    @staticmethod
+    def select_dir(title):
         file_html_save_options = {
             'filetypes': [("html file", "*.html")],
             'title': title
@@ -170,13 +176,15 @@ class Application(tk.Frame):
         # path = "../data/html/js_test.html"  # for faster development
         self.save_file(path=path, text=util.create_html(data, tags))
 
-    def execute_w2v(self, model):
+    @staticmethod
+    def execute_w2v(model):
         w2v.word2vec(model=model)
 
     def calc_precision_recall(self):
         self.graph_data = util.compare_docs(self.open_json("Select tagged data"), self.open_json("Select mined data"))
 
-    def about(self):
+    @staticmethod
+    def about():
         print "command: about"
 
     def quit(self):

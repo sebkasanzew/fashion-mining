@@ -322,7 +322,7 @@ def extract_indices(doc=None):
     """
     Extracts all indices from a specific nested list.
     :param doc:
-    :type doc: dict[list[list]]
+    :type doc: dict
     :return: A list of all extracted indices
     :rtype: list
     """
