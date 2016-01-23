@@ -4,8 +4,8 @@ import json
 from nltk import wordpunct_tokenize
 from nltk.corpus import stopwords
 
-with open("../data/plain_text_optimized.json", "r") as text_file:
-    docs = text_file.readlines()
+with open("../data/input_data/crawler_with_ids.json", "r") as text_file:
+    docs = json.load(text_file)
 
 def _calculate_languages_ratios(text):
     languages_ratios = {}
@@ -31,8 +31,9 @@ def filtering_file(file):
 
     l = len(file)
     i = 0
+    result = []
 
-    with open("../data/plain_text_optimized_2.json.json", "a") as myfile:
+    with open("../data/input_data/crawler_with_ids_english_only.json", "a") as myfile:
         myfile.seek(0)
         myfile.truncate()
 
@@ -40,11 +41,14 @@ def filtering_file(file):
             print str(i) + "/" + str(l)
             i+=1
 
-            data = json.loads(line)
-            text = data["extracted_text"]
+
+            text = line["extracted_text"]
+            #print(text)
 
             if detect_language(text) == "english":
-                    myfile.write(line)
+                    result.append(line)
+
+        json.dump(result, myfile, sort_keys=True, indent=4)
 
 if __name__=='__main__':
     filtering_file(docs)
