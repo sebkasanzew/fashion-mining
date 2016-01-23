@@ -583,8 +583,11 @@ def create_html(data=None, tags=None):
 
         sections.append(card)
 
-    stylesheets = [E.LINK(rel="stylesheet", href="css/materialize.min.css"),
+    stylesheets = [E.LINK(rel="stylesheet", href="http://fonts.googleapis.com/icon?family=Material+Icons"),
+                   E.LINK(rel="stylesheet", href="css/materialize.min.css"),
                    E.LINK(rel="stylesheet", href="css/main.css")]
+
+    meta = [E.META(name="viewport", content="width=device-width, initial-scale=1.0")]
 
     scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
                E.SCRIPT(src="js/materialize.js"),
@@ -592,13 +595,34 @@ def create_html(data=None, tags=None):
                E.SCRIPT(src="js/main.js")]
 
     header = E.DIV(E.CLASS("header col s12 orange darken-3"), E.H1("Zalando Textmining"))
-    legend = E.DIV(E.CLASS("legend col s12 white"),
+    legend = E.DIV(E.CLASS("legend col s12 m8 white"),
                    E.H3("Legend"),
                    E.UL(
-                        E.LI(E.SPAN(E.CLASS("exists-in-dict"), "Word exists in dictionary")),
-                        E.LI(E.SPAN(E.CLASS("new-for-dict"), "New word for dictionary")),
-                        E.LI(E.SPAN(E.CLASS("null"), "Null"))
+                           E.LI(E.SPAN(E.CLASS("exists-in-dict"), "Word exists in dictionary")),
+                           E.LI(E.SPAN(E.CLASS("new-for-dict"), "New word for dictionary")),
+                           E.LI(E.SPAN(E.CLASS("null"), "Null"))
                    ))
+
+    current_threshold = E.DIV(E.CLASS("col s12 m4"),
+                              E.DIV(E.CLASS("row"),
+                                    E.P(E.CLASS("col s6"), "cos threshold:"),
+                                    E.P(E.CLASS("col s6"), "0", E.ATTR(id="currentThreshold"))))
+
+    fixed_action_button = E.DIV(E.CLASS("fixed-action-btn"), E.STYLE("bottom: 45px", "right: 24px"),
+                                E.A(E.CLASS("btn-floating btn-large red"), E.ATTR(id="edit"),
+                                    E.I(E.CLASS("large material-icons"), "mode_edit")))
+
+    modal_cosine_threshold = E.DIV(E.CLASS("modal"), E.ATTR(id="modalCosineThreshold"),
+                                   E.DIV(E.CLASS("modal-content"),
+                                         E.DIV(E.CLASS("input-filed"),
+                                               E.INPUT(E.CLASS("validate"),
+                                                       E.ATTR(value="0", id="inputCosine", type="number",
+                                                              max="1", min="0", step="0.01")),
+                                               E.LABEL("cosine threshold"), E.FOR("inputCosine"))),
+                                   E.DIV(E.CLASS("modal-footer"),
+                                         E.A(E.CLASS("modal-action modal-close waves-effect waves-orange btn-flat"),
+                                             E.ATTR(id="modalCosineThresholdSet"),
+                                             "Set", E.ATTR(href="#!"))))
 
     # create two columns for better view
     sections_left = []
@@ -609,13 +633,13 @@ def create_html(data=None, tags=None):
         else:
             sections_right.append(sec)
 
-    doc_container = [E.DIV(E.CLASS("row"), header, legend,
+    doc_container = [E.DIV(E.CLASS("row"), header, legend, current_threshold,
                            E.DIV(E.CLASS("col s12 l6"), *sections_left),
                            E.DIV(E.CLASS("col s12 l6"), *sections_right)
                            )]
 
-    head = E.HEAD(*stylesheets)
-    body = E.BODY(*(doc_container + scripts))
+    head = E.HEAD(*(stylesheets + meta))
+    body = E.BODY(fixed_action_button, modal_cosine_threshold, *(doc_container + scripts))
 
     html = E.HTML(head, body)
 

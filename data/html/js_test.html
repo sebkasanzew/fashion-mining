@@ -1,13 +1,25 @@
 <!Doctype html>
 <html>
 <head>
+<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <link href="css/materialize.min.css" rel="stylesheet">
 <link href="css/main.css" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
 </head>
 <body>
+<div class="fixed-action-btn">
+<style>bottom: 45pxright: 24px</style>
+<a class="btn-floating btn-large red" id="edit"><i class="large material-icons">mode_edit</i></a>
+</div>
+<div class="modal" id="modalCosineThreshold">
+<div class="modal-content"><div class="input-filed" for="inputCosine">
+<input class="validate" step="0.01" min="0" max="1" type="number" id="inputCosine" value="0"><label>cosine threshold</label>
+</div></div>
+<div class="modal-footer"><a class="modal-action modal-close waves-effect waves-orange btn-flat" id="modalCosineThresholdSet" href="#!">Set</a></div>
+</div>
 <div class="row">
 <div class="header col s12 orange darken-3"><h1>Zalando Textmining</h1></div>
-<div class="legend col s12 white">
+<div class="legend col s12 m8 white">
 <h3>Legend</h3>
 <ul>
 <li><span class="exists-in-dict">Word exists in dictionary</span></li>
@@ -15,6 +27,10 @@
 <li><span class="null">Null</span></li>
 </ul>
 </div>
+<div class="col s12 m4"><div class="row">
+<p class="col s6">cos threshold:</p>
+<p class="col s6" id="currentThreshold"></p>
+</div></div>
 <div class="col s12 l6">
 <div><div class="card-panel"><div>
 <p>Document ID: 559be2b565f2886d5687b9a5</p>
