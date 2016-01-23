@@ -579,7 +579,7 @@ def create_html(data=None, tags=None):
                     # print added
 
         section = E.DIV(E.P("Document ID: " + doc_id), E.E.section(text, id=doc_id))
-        card = E.DIV(E.CLASS("col s12 m12 l6"), E.DIV(E.CLASS("card-panel"), section))
+        card = E.DIV(E.DIV(E.CLASS("card-panel"), section))
 
         sections.append(card)
 
@@ -600,7 +600,19 @@ def create_html(data=None, tags=None):
                         E.LI(E.SPAN(E.CLASS("null"), "Null"))
                    ))
 
-    doc_container = [E.DIV(E.CLASS("row"), header, legend, *sections)]
+    # create two columns for better view
+    sections_left = []
+    sections_right = []
+    for key, sec in enumerate(sections):
+        if key < len(sections) / 2:
+            sections_left.append(sec)
+        else:
+            sections_right.append(sec)
+
+    doc_container = [E.DIV(E.CLASS("row"), header, legend,
+                           E.DIV(E.CLASS("col s12 l6"), *sections_left),
+                           E.DIV(E.CLASS("col s12 l6"), *sections_right)
+                           )]
 
     head = E.HEAD(*stylesheets)
     body = E.BODY(*(doc_container + scripts))
