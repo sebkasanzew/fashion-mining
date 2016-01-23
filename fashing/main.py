@@ -166,11 +166,11 @@ class Application(tk.Frame):
         return tkFileDialog.asksaveasfilename(**file_html_save_options)
 
     def export_html(self):
-        # data = self.open_json(title='Choose the JSON with the documents')
-        # tags = self.open_json(title='Choose the JSON with the tags')
+        data = self.open_json(title='Choose the JSON with the documents')
+        tags = self.open_json(title='Choose the JSON with the tags')
 
-        data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
-        tags = self.open_json_with_path("../data/output_data/vector_words_tags.json")
+        # data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
+        # tags = self.open_json_with_path("../data/output_data/vector_words_tags.json")
 
         path = self.select_dir(title="Select where to save the HTML file")
         # path = "../data/html/js_test.html"  # for faster development
