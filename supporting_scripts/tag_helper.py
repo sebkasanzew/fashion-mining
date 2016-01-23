@@ -4,13 +4,13 @@
 import json
 import re
 
-with open("../data/example_docs_tags_manuell.json", "r") as text_file:
+with open("../data/example_docs_tags_manual.json", "r") as text_file:
     tags_man = json.load(text_file)
 
 with open("../data/example_docs.json", "r") as text_file:
     docs = json.load(text_file)
 
-with open("../data/example_docs_tags_manuell_final.json", "a") as clear:
+with open("../data/example_docs_tags_manual_final.json", "a") as clear:
     clear.seek(0)
     clear.truncate()
 
@@ -43,5 +43,5 @@ for data in tags_man:
 
     counter +=1
 
-with open("../data/example_docs_tags_manuell_final.json", "a") as example_docs:
+with open("../data/example_docs_tags_manual_final.json", "a") as example_docs:
     example_docs.writelines(json.dumps(tags_man)+ "\n")
