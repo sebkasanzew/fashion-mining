@@ -30,16 +30,18 @@ def word2vec(model):
 
     # Loading external files
     logging.info("Loading documents and dictionary...")
-    #with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
-    with open(PROJECT_DIR + "data/input_data/crawler_with_ids.json", "r") as documents_file:
+    # with open(PROJECT_DIR + "data/input_data/crawler_with_ids.json", "r") as documents_file:
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
         docs = json.load(documents_file)
 
     # To skip nltk tokenizing load this document and comment tokens = nltk_tokenizing at line 44 out
     # with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
     #    tokens = json.load(documents_file)
 
-    with open(PROJECT_DIR + "data/dictionaries/entities.txt", "r") as dictionary_file:
+    with open(PROJECT_DIR + "data/dictionaries/entities_new.txt", "r") as dictionary_file:
         dictionary = json.load(dictionary_file)
+
+    new_dictionary = list(dictionary)
 
     logging.info("NLTK Tokenizing...")
     tokens = nltk_tokenizing(docs)
@@ -50,6 +52,7 @@ def word2vec(model):
 
     logging.info("Determining similarity...")
     sim = 0
+    counter = 0
     result = []
 
     for doc in tokens:
@@ -92,11 +95,20 @@ def word2vec(model):
                     cos_dist.append(["None", "None"])
                 else:
                     cos_dist.append([str(word_dict), str(sim)])
-                    #print "Word: ", token, "| Word from Dict: ", word_dict
+
+                    # add word to dictionary if exceeds threshold
+                    if not (str(word) in new_dictionary) and sim >= 0.7:
+                        # print("Appending: ", str(word))
+                        counter +=1
+                        new_dictionary.append(str(word))
+                    else:
+                        # print("Word" + str(word) + " already exists in dictionary")
+                        pass
+
                     sim = 0
+
             except:
                 cos_dist.append(["None", "None"])
-                #print "fail"
 
         doc["cos_dist"] = cos_dist
         result.append(doc)
@@ -105,8 +117,14 @@ def word2vec(model):
     with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "w") as docs_tags:
         json.dump(result, docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
+    logging.info(str(counter) + " new words added to dictionary!")
+    logging.info("Writing new dictionary...")
+    with open(PROJECT_DIR + "data/dictionaries/entities_new.txt", "w") as new_dict_file:
+        json.dump(new_dictionary, new_dict_file, sort_keys=True, indent=4, ensure_ascii=True)
+
     logging.info("Word2Vec finished!")
     return result
+
 
 def nltk_tokenizing(document):
     """
@@ -119,7 +137,7 @@ def nltk_tokenizing(document):
     # x = 0
     result = []
     for data in document:
-        #
+
         # if x == 3:
         #     break
         # x += 1
@@ -134,7 +152,6 @@ def nltk_tokenizing(document):
         for s in sentences:
 
             for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
-                # TODO Raul: check your intention... type(word) is checked twice (in check_tag())
                 if type(word) is tuple:
                     if check_tag(word):
                         token_words.append(word[0])
@@ -214,8 +231,8 @@ def load_model(mod):
     if mod == "selftrained":
         return gensim.models.Word2Vec.load(PROJECT_DIR + 'data/models/fashion_model')
 
-    # if x == 2:
-    #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
+        # if x == 2:
+        #    return gensim.models.Word2Vec.load_word2vec_format('/opt/word2vec/freebase_model_en.bin.gz', binary=True)
 
 
 # TODO collecting table data
