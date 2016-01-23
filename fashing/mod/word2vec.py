@@ -133,6 +133,7 @@ def nltk_tokenizing(document):
         for s in sentences:
 
             for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
+                # TODO Raul: check your intention... type(word) is checked twice (in check_tag())
                 if type(word) is tuple:
                     if check_tag(word):
                         token_words.append(word[0])
