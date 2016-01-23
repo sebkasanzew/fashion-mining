@@ -1,0 +1,9 @@
+.exists-in-dict {
+    color: red; /* TODO Zalando orange */
+    cursor: pointer;
+}
+
+.new-for-dict {
+    color: green; /* new words found */
+    cursor: pointer;
+}

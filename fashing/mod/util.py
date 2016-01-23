@@ -359,24 +359,43 @@ def calc_tn(doc):
     return count
 
 
-def extract_indices(array=None):
+def extract_indices(doc=None):
     """
     Extracts all indices from a specific nested list.
-    :param array:
-    :type array: list[list[int]]
+    :param doc:
+    :type doc: dict[list[list]]
     :return: A list of all extracted indices
     :rtype: list
     """
-    if array is None:
+    if doc is None:
         return []
+    else:
+        new_list = []
 
-    new_list = []
+        indices = doc["indices"]
+        entities = doc["entities"]
+        w2v = doc["cos_dist"]
 
-    for i in array:
-        for j in i:
-            new_list.append(j)
+        # print "entities:", entities
 
-    return new_list
+        for key, i in enumerate(indices):
+            entity = entities[key]
+            w2v_word = w2v[key][0]
+            cos_dist = w2v[key][1]
+
+            # print "entity:", entity
+            print
+
+            for j in i:
+                j.append(entity)
+                j.append(w2v_word)
+                j.append(cos_dist)
+
+                print j
+
+                new_list.append(j)
+
+        return new_list
 
 
 def insert_in_string(string=str(), index=int(), insert=str()):
@@ -532,10 +551,19 @@ def create_html(data=None, tags=None):
     if data is None:
         data = []
 
-    brand_tag_start = '<span class="brand" style="color: red">'
-    brand_tag_end = '</span>'
+    def exists_tag_start(tooltip_text):
+        return '<span class="exists-in-dict tooltipped" data-tooltip="' + tooltip_text + '" data-position="bottom"' \
+                                                                                         'data-delay="50">'
 
-    sections = []
+    exists_tag_end = '</span>'
+
+    new_tag_start = '<span class="new-for-dict">'
+    new_tag_end = '</span>'
+
+    none_tag_start = '<span class="none">'
+    none_tag_end = '</span>'
+
+    sections = []  # contains all the tagged documents
 
     for docs in data:
         doc_id = uni2utf(docs["_id"]["$oid"])
@@ -543,7 +571,7 @@ def create_html(data=None, tags=None):
 
         for tag in tags:
             if tag["_id"] == doc_id:
-                indices = sort_2d_array(extract_indices(tag["indices"]))
+                indices = sort_2d_array(extract_indices(tag))
 
                 # remove all intersecting indices
                 restart = True
@@ -558,28 +586,49 @@ def create_html(data=None, tags=None):
                         else:
                             restart = False
 
-                added = 0
-                for index in indices:
+                added = 0  # the current string position, where the html tag will be added
+
+                for key, index in enumerate(indices):
                     j = index[0] + added
-                    text = insert_in_string(text, j, brand_tag_start)
-                    added += len(brand_tag_start)
+                    print index
+                    similar_word = index[3]
+                    cosinus_distance = index[4]
+                    # tooltip_text = "similar word: " + similar_word + "\ncosinus: " + cosinus_distance
+                    tooltip_text = "similar word: " + "test" + "\ncosinus: " + str(0.5)
+                    exists_tag_start_string = exists_tag_start(tooltip_text=tooltip_text)
+                    text = insert_in_string(text, j, exists_tag_start_string)
+                    added += len(exists_tag_start_string)
                     j = index[1] + added
-                    text = insert_in_string(text, j, brand_tag_end)
-                    added += len(brand_tag_end)
-                    print added
+                    text = insert_in_string(text, j, exists_tag_end)
+                    added += len(exists_tag_end)
+                    # print added
 
-        sections.append(E.E.section(text, id=doc_id, style="margin: 10px"))
+        section = E.E.section(text, id=doc_id)
+        card = E.DIV(E.CLASS("col s12 m6"), E.DIV(E.CLASS("card-panel"), section))
 
-    head = E.HEAD()
-    body = E.BODY(*sections)
+        sections.append(card)
 
-    # print sections
+    stylesheets = [E.LINK(rel="stylesheet", href="css/materialize.min.css"),
+                   E.LINK(rel="stylesheet", href="css/main.css")]
+    scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
+               E.SCRIPT(src="js/materialize.min.js"),
+               E.SCRIPT(src="js/main.js")]
+
+    doc_container = [E.DIV(E.CLASS("row"), *sections)]
+
+    head = E.HEAD(*stylesheets)
+    body = E.BODY(*(doc_container + scripts))
 
     html = E.HTML(head, body)
 
     # pretty string
     # print "<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True)
-    return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
+    head = "<!Doctype html>\n"
+
+    html = head + lxml.html.tostring(html, pretty_print=True)
+
+    return replace_gt_and_lt(html)
+    # return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
 
 
 def calc_precision(tp, fp):
