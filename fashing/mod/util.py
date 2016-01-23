@@ -32,20 +32,6 @@ def sort_2d_array(array=None):
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
-def sort_3d_array(array=None):
-    # TODO: seems to do the same like sort_2d_array()
-    """
-    Sort a 3D array after the first number ascending.
-    :param array: unsorted 3D-list
-    :type array: list
-    :return: sorted 3D-list
-    :rtype: list[list[list[int]]]
-    """
-    if array is None:
-        return []
-    return sorted(array, key=lambda l: l[0], reverse=False)
-
-
 def merge_intersected_indices(array_one=None, array_two=None):
     """
     Merges two list elements into one list if they ave an intersection.
@@ -152,8 +138,6 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
 
 
 def compare_indices(gold_indices, w2v_indices):
-    # STEP 2
-    # TODO: compare the indices in the correct way
     """
     :param gold_indices:
     :param w2v_indices:
@@ -205,7 +189,7 @@ def compare_indices(gold_indices, w2v_indices):
     return doc_compare
 
 
-def calc_cos_precision(cos, data):
+def count_values_from_data(cos, data):
     all_tp_fp_fn = []
 
     for i in data:
@@ -225,65 +209,39 @@ def calc_cos_precision(cos, data):
     print "fp:", fp
     print "fn:", fn
 
-    precision = calc_precision(tp, fp)
+    return {"cos": cos, "tp": tp, "fp": fp, "fn": fn}
 
+
+def calc_cos_precision(cos, data):
+    values = count_values_from_data(cos, data)
+    precision = calc_precision(values["tp"], values["fp"])
     return [cos, precision]
 
 
 def calc_cos_recall(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-
-    recall = calc_recall(tp, fn)
-
+    values = count_values_from_data(cos, data)
+    recall = calc_recall(values["tp"], values["fn"])
     return [cos, recall]
 
 
 def calc_precision_recall(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-    # print "tn:", (tp + fn) - fp
-
-    precision = calc_precision(tp, fp)
-    recall = calc_recall(tp, fn)
-
-    # [calc_precision(tp, fp), calc_recall(tp, fn)]
-
-    # print "calc_precision_recall():", [recall, precision]
-
+    values = count_values_from_data(cos, data)
+    precision = calc_precision(values["tp"], values["fp"])
+    recall = calc_recall(values["tp"], values["fn"])
     return [recall, precision]
+
+
+def calc_f1_score(cos, data):
+    values = count_values_from_data(cos, data)
+
+    recall = calc_recall(values["tp"], values["fn"])
+    precision = calc_precision(values["tp"], values["fp"])
+
+    print "recall", recall
+    print "precision", precision
+
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return [cos, f1_score]
 
 
 def count_all_tp_fp_fn(cos, data):
@@ -359,24 +317,43 @@ def calc_tn(doc):
     return count
 
 
-def extract_indices(array=None):
+def extract_indices(doc=None):
     """
     Extracts all indices from a specific nested list.
-    :param array:
-    :type array: list[list[int]]
+    :param doc:
+    :type doc: dict[list[list]]
     :return: A list of all extracted indices
     :rtype: list
     """
-    if array is None:
+    if doc is None:
         return []
+    else:
+        new_list = []
 
-    new_list = []
+        indices = doc["indices"]
+        entities = doc["entities"]
+        w2v = doc["cos_dist"]
 
-    for i in array:
-        for j in i:
-            new_list.append(j)
+        # print "entities:", entities
 
-    return new_list
+        for key, i in enumerate(indices):
+            entity = entities[key]
+            w2v_word = w2v[key][0]
+            cos_dist = w2v[key][1]
+
+            # print "entity:", entity
+            print
+
+            for j in i:
+                j.append(entity)
+                j.append(w2v_word)
+                j.append(cos_dist)
+
+                print j
+
+                new_list.append(j)
+
+        return new_list
 
 
 def insert_in_string(string=str(), index=int(), insert=str()):
@@ -475,14 +452,6 @@ def count_existing_words(gold_words, dictionary):
     :rtype: list
     """
 
-    # print "gold:"
-    # pprint(gold_words)
-
-    # print "dict:"
-    # pprint(dictionary)
-
-    # dictionary = ['Audi']  # TODO get the right dict list
-
     existing_words = 0
     new_words = 0
 
@@ -532,10 +501,19 @@ def create_html(data=None, tags=None):
     if data is None:
         data = []
 
-    brand_tag_start = '<span class="brand" style="color: red">'
-    brand_tag_end = '</span>'
+    def exists_tag_start(tooltip_text):
+        return '<span class="exists-in-dict tooltipped" data-tooltip="' + tooltip_text + '" data-position="bottom"' \
+                                                                                         'data-delay="50">'
 
-    sections = []
+    exists_tag_end = '</span>'
+
+    new_tag_start = '<span class="new-for-dict">'
+    new_tag_end = '</span>'
+
+    none_tag_start = '<span class="none">'
+    none_tag_end = '</span>'
+
+    sections = []  # contains all the tagged documents
 
     for docs in data:
         doc_id = uni2utf(docs["_id"]["$oid"])
@@ -543,7 +521,13 @@ def create_html(data=None, tags=None):
 
         for tag in tags:
             if tag["_id"] == doc_id:
-                indices = sort_2d_array(extract_indices(tag["indices"]))
+                extracted_indices = extract_indices(tag)
+                # print
+                # pprint(extracted_indices)
+                # print
+                indices = sort_2d_array(extracted_indices)
+                # pprint(indices)
+                # print
 
                 # remove all intersecting indices
                 restart = True
@@ -558,28 +542,55 @@ def create_html(data=None, tags=None):
                         else:
                             restart = False
 
-                added = 0
-                for index in indices:
+                added = 0  # the current string position, where the html tag will be added
+
+                for key, index in enumerate(indices):
                     j = index[0] + added
-                    text = insert_in_string(text, j, brand_tag_start)
-                    added += len(brand_tag_start)
+                    # print
+                    # print "####################### Index ########################"
+                    # print index
+                    if len(index) > 3:
+                        similar_word = uni2utf(index[3])
+                        cosinus_distance = uni2utf(index[4])
+                        tooltip_text = "similar word: " + similar_word + "<br/>cosinus: " + cosinus_distance
+                    else:
+                        print "ERROR: wrong index list"
+                        pprint(index)
+                        tooltip_text = "similar word: " + "unknown" + "\ncosinus: " + "0"
+                    exists_tag_start_string = exists_tag_start(tooltip_text=tooltip_text)
+                    text = insert_in_string(text, j, exists_tag_start_string)
+                    added += len(exists_tag_start_string)
                     j = index[1] + added
-                    text = insert_in_string(text, j, brand_tag_end)
-                    added += len(brand_tag_end)
-                    print added
+                    text = insert_in_string(text, j, exists_tag_end)
+                    added += len(exists_tag_end)
+                    # print added
 
-        sections.append(E.E.section(text, id=doc_id, style="margin: 10px"))
+        section = E.E.section(text, id=doc_id)
+        card = E.DIV(E.CLASS("col s12 m6"), E.DIV(E.CLASS("card-panel"), section))
 
-    head = E.HEAD()
-    body = E.BODY(*sections)
+        sections.append(card)
 
-    # print sections
+    stylesheets = [E.LINK(rel="stylesheet", href="css/materialize.min.css"),
+                   E.LINK(rel="stylesheet", href="css/main.css")]
+    scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
+               E.SCRIPT(src="js/materialize.js"),
+               E.SCRIPT(src="js/main.js")]
+
+    doc_container = [E.DIV(E.CLASS("row"), *sections)]
+
+    head = E.HEAD(*stylesheets)
+    body = E.BODY(*(doc_container + scripts))
 
     html = E.HTML(head, body)
 
     # pretty string
     # print "<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True)
-    return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
+    head = "<!Doctype html>\n"
+
+    html = head + lxml.html.tostring(html, pretty_print=True)
+
+    return replace_gt_and_lt(html)
+    # return replace_gt_and_lt("<!Doctype html>\n" + lxml.html.tostring(html, pretty_print=True))
 
 
 def calc_precision(tp, fp):
@@ -612,36 +623,6 @@ def calc_recall(tp, fn):
     """
     recall = float(tp) / (tp + fn)
     return recall
-
-
-def calc_f1_score(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-
-    recall = calc_recall(tp, fn)
-    precision = calc_precision(tp, fp)
-
-    print "recall", recall
-    print "precision", precision
-
-    f1_score = 2 * (precision * recall) / (precision + recall)
-    return [cos, f1_score]
 
 
 def step_range(start, stop, step):

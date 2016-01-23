@@ -125,7 +125,7 @@ class Application(tk.Frame):
         path = tkFileDialog.askopenfilename(**kwargs)
         return util.open_json(path)
 
-    def open_file_with_path(self, path, **kwargs):
+    def open_json_with_path(self, path, **kwargs):
         try:
             with open(path, "r") as json_file:
                 return json.load(json_file)
@@ -160,10 +160,14 @@ class Application(tk.Frame):
         return tkFileDialog.asksaveasfilename(**file_html_save_options)
 
     def export_html(self):
-        data = self.open_json(title='Choose the JSON with the documents')
-        tags = self.open_json(title='Choose the JSON with the tags')
+        # data = self.open_json(title='Choose the JSON with the documents')
+        # tags = self.open_json(title='Choose the JSON with the tags')
+
+        data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
+        tags = self.open_json_with_path("../data/output_data/vector_words_tags.json")
 
         path = self.select_dir(title="Select where to save the HTML file")
+        # path = "../data/html/js_test.html"  # for faster development
         self.save_file(path=path, text=util.create_html(data, tags))
 
     def execute_w2v(self, model):
@@ -182,8 +186,8 @@ class Application(tk.Frame):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
-        gold = self.open_file_with_path(path=gold_document_path)
-        word2vec = self.open_file_with_path(path=w2v_document_path)
+        gold = self.open_json_with_path(path=gold_document_path)
+        word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
         self.update_canvas(x_headline="Recall", y_headline="Precision", graph_headline="Precision/Recall Graph",
@@ -193,8 +197,8 @@ class Application(tk.Frame):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
-        gold = self.open_file_with_path(path=gold_document_path)
-        word2vec = self.open_file_with_path(path=w2v_document_path)
+        gold = self.open_json_with_path(path=gold_document_path)
+        word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
         self.update_canvas(x_headline="Cosinus", y_headline="Precision", graph_headline="Precision Graph",
@@ -204,8 +208,8 @@ class Application(tk.Frame):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
-        gold = self.open_file_with_path(path=gold_document_path)
-        word2vec = self.open_file_with_path(path=w2v_document_path)
+        gold = self.open_json_with_path(path=gold_document_path)
+        word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
         self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph",
@@ -215,8 +219,8 @@ class Application(tk.Frame):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
-        gold = self.open_file_with_path(path=gold_document_path)
-        word2vec = self.open_file_with_path(path=w2v_document_path)
+        gold = self.open_json_with_path(path=gold_document_path)
+        word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="f1", steps=0.01)
         self.update_canvas(x_headline="Cosinus", y_headline="F1", graph_headline="F1 Score")
@@ -229,8 +233,8 @@ class Application(tk.Frame):
         gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
         fashion_dictionary_path = "../data/dictionaries/one_word_entities.txt"
 
-        gold_document = self.open_file_with_path(path=gold_document_path)
-        fashion_dictionary = self.open_file_with_path(path=fashion_dictionary_path)
+        gold_document = self.open_json_with_path(path=gold_document_path)
+        fashion_dictionary = self.open_json_with_path(path=fashion_dictionary_path)
 
         print util.count_existing_words(gold_document, fashion_dictionary)
 
@@ -238,8 +242,8 @@ class Application(tk.Frame):
         self.menubar = tk.Menu(self, font=FONT_MENU)
 
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.file_menu.add_command(label="Open", command=lambda: self.open_file())
-        self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
+        # self.file_menu.add_command(label="Open", command=lambda: self.open_file())
+        # self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()
