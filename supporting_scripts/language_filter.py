@@ -48,7 +48,7 @@ def filtering_file(file):
             if detect_language(text) == "english":
                     result.append(line)
 
-        json.dump(result, myfile, sort_keys=True, indent=4)
+        json.dump(result, myfile, sort_keys=True, indent=4, ensure_ascii=True)
 
 if __name__=='__main__':
     filtering_file(docs)

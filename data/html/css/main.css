@@ -20,6 +20,11 @@
     color: red;
 }
 
+.filtered {
+    background-color: white;
+    color: black;
+}
+
 .header {
     color: white;
     text-align: center;
@@ -31,4 +36,8 @@
 
 .material-tooltip {
     text-align: left;
+}
+
+#modalCosineThreshold {
+    max-width: 150px;
 }
