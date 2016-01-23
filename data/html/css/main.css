@@ -1,5 +1,6 @@
 .exists-in-dict,
-.new-for-dict {
+.new-for-dict,
+.null {
     background-color: #e9e9e9;
 }
 
@@ -13,6 +14,10 @@
 
 .new-for-dict {
     color: green; /* new words found */
+}
+
+.null {
+    color: red;
 }
 
 .header {

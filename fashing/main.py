@@ -160,10 +160,10 @@ class Application(tk.Frame):
         return tkFileDialog.asksaveasfilename(**file_html_save_options)
 
     def export_html(self):
-        # data = self.open_json(title='Choose the JSON with the documents')
+        data = self.open_json(title='Choose the JSON with the documents')
         # tags = self.open_json(title='Choose the JSON with the tags')
 
-        data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
+        # data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
         tags = self.open_json_with_path("../data/output_data/vector_words_tags.json")
 
         path = self.select_dir(title="Select where to save the HTML file")
@@ -244,7 +244,7 @@ class Application(tk.Frame):
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
         # self.file_menu.add_command(label="Open", command=lambda: self.open_file())
         # self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
-        self.file_menu.add_separator()
+        # self.file_menu.add_separator()
         self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit)
@@ -255,10 +255,12 @@ class Application(tk.Frame):
         self.analyse_menu.add_command(label="Execute Word2Vec with Glove model",
                                       command=lambda: self.execute_w2v(model="glove"))
         # self.analyse_menu.add_command(label="Execute Word2Vec", command=execute_w2v)
+        self.analyse_menu.add_separator()
         self.analyse_menu.add_command(label="Calculate Precision/Recall", command=lambda: self.compare_docs())
         self.analyse_menu.add_command(label="Calculate Precision", command=lambda: self.calc_precision())
         self.analyse_menu.add_command(label="Calculate Recall", command=lambda: self.calc_recall())
         self.analyse_menu.add_command(label="Calculate F1 Score", command=lambda: self.calc_f1())
+        self.analyse_menu.add_separator()
         self.analyse_menu.add_command(label="Count new and existing words from gold standard",
                                       command=lambda: self.count_existing_words())
 

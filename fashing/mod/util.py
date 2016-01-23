@@ -566,7 +566,7 @@ def create_html(data=None, tags=None):
                         print "#########################################################################"
                         print "ERROR: wrong index list"
                         pprint(index)
-                        tooltip_text = "similar word: unknown<br/>cosine: 0"
+                        tooltip_text = "similar word: unknown<br/>cosine: null"
                     exists_tag_start_string = tag_start(data_tooltip=tooltip_text, data_dict_word=similar_word,
                                                         data_cosine=cosine_distance)
                     text = insert_in_string(text, j, exists_tag_start_string)
@@ -583,13 +583,22 @@ def create_html(data=None, tags=None):
 
     stylesheets = [E.LINK(rel="stylesheet", href="css/materialize.min.css"),
                    E.LINK(rel="stylesheet", href="css/main.css")]
+
     scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
                E.SCRIPT(src="js/materialize.js"),
                E.SCRIPT(src="js/dictionary.js"),
                E.SCRIPT(src="js/main.js")]
 
     header = E.DIV(E.CLASS("header col s12 orange darken-3"), E.H1("Zalando Textmining"))
-    doc_container = [E.DIV(E.CLASS("row"), header, *sections)]
+    legend = E.DIV(E.CLASS("legend col s12 white"),
+                   E.H3("Legend"),
+                   E.UL(
+                        E.LI(E.SPAN(E.CLASS("exists-in-dict"), "Word exists in dictionary")),
+                        E.LI(E.SPAN(E.CLASS("new-for-dict"), "New word for dictionary")),
+                        E.LI(E.SPAN(E.CLASS("null"), "Null"))
+                   ))
+
+    doc_container = [E.DIV(E.CLASS("row"), header, legend, *sections)]
 
     head = E.HEAD(*stylesheets)
     body = E.BODY(*(doc_container + scripts))
