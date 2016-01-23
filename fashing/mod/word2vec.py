@@ -19,6 +19,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # Global Paths TODO: improvement of dirs
 PROJECT_DIR = os.path.dirname(__file__) + "/../../"
 GLOVE_DIR = PROJECT_DIR + "data/tmp/"
+threshold = 0.9
 
 
 def word2vec(model):
@@ -98,7 +99,7 @@ def word2vec(model):
                     cos_dist.append([str(word_dict), str(sim)])
 
                     # add word to dictionary if exceeds threshold
-                    if not (str(word) in new_dictionary) and sim >= 0.7:
+                    if not (str(word) in new_dictionary) and sim >= threshold:
                         # print("Appending: ", str(word))
                         counter +=1
                         new_dictionary.append(str(word))
@@ -162,7 +163,7 @@ def nltk_tokenizing(document):
                         for w in word:
                             word_list.append(w[0])
                         token_words.append(" ".join(word_list))
-                        print(token_words)
+                        # print(token_words)
 
         dictionary = corpora.Dictionary([token_words])
 
@@ -172,7 +173,7 @@ def nltk_tokenizing(document):
 
             # Match pipe or non-alphaNumeric chars
             if re.match(".*[\|].*|[^a-zA-Z\d\s:]", dictionary[word]) is None:
-                print("String matches: " + dictionary[word])
+                # print("String matches: " + dictionary[word])
 
                 for m in re.finditer(dictionary[word], extracted_text):
                     try:
@@ -180,7 +181,7 @@ def nltk_tokenizing(document):
                             contains = True
                             i_tmp.append([m.start(), m.end()])
                     except:
-                        print(data)
+                        # print(data)
                         print("The word: " + dictionary[word] + " contains pipes and will not be processed")
 
                 if contains:
