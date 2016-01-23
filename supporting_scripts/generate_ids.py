@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import json
+import re
+
 from bson.objectid import ObjectId
 
 with open("../data/input_data/crawler.json", "r") as documents_file:
@@ -10,8 +12,11 @@ with open("../data/input_data/crawler.json", "r") as documents_file:
 result = []
 
 for doc in docs:
-    tmp = {"url": doc["url"], "_id": {"$oid": str(ObjectId())}, "extracted_text": doc["extracted_text"]}
-    print tmp
+    #text = str(doc["url"]).translate(None, '[]{}*')
+
+    text = str(doc["extracted_text"].encode("utf8")).translate(None, '[]{}*')
+
+    tmp = {"url": doc["url"], "_id": {"$oid": str(ObjectId())}, "extracted_text": text}
     result.append(tmp)
 
 
