@@ -31,7 +31,7 @@ def word2vec(model):
     # Loading external files
     logging.info("Loading documents and dictionary...")
     #with open(PROJECT_DIR + "data/input_data/example_docs/example_docs.json", "r") as documents_file:
-    with open(PROJECT_DIR + "data/input_data/crawler_with_ids.json", "r") as documents_file:
+    with open(PROJECT_DIR + "data/input_data/crawler_with_ids_english_only.json", "r") as documents_file:
         docs = json.load(documents_file)
 
     # To skip nltk tokenizing load this document and comment tokens = nltk_tokenizing at line 44 out
@@ -144,6 +144,7 @@ def nltk_tokenizing(document):
                         for w in word:
                             word_list.append(w[0])
                         token_words.append(" ".join(word_list))
+                        print(token_words)
 
         dictionary = corpora.Dictionary([token_words])
 
@@ -151,7 +152,9 @@ def nltk_tokenizing(document):
             i_tmp = []
             contains = False
 
-            if re.match(".*\|.*", dictionary[word]) is None:
+            # Match pipe or non-alphaNumeric chars
+            if re.match(".*[\|].*|[^a-zA-Z\d\s:]", dictionary[word]) is None:
+                print("String matches: " + dictionary[word])
 
                 for m in re.finditer(dictionary[word], extracted_text):
                     try:
