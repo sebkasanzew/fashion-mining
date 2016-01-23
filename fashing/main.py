@@ -40,7 +40,7 @@ def main():
     root.mainloop()
 
 
-class Statusbar(tk.Frame):
+class StatusBar(tk.Frame):
     def __init__(self, master=None, *args, **kwargs):
         self.CONSOLE_CONTAINER = None
         self.CONSOLE = None
@@ -101,13 +101,13 @@ class Application(tk.Frame):
         self.graph_data = []
 
         tk.Frame.__init__(self, master, *args, **kwargs)
-        self.statusbar = Statusbar(self)
+        self.status_bar = StatusBar(self)
         self.main_area = MainArea(self)
 
         self.create_canvas()
 
-        # menubar and sub menus
-        self.menubar = None
+        # menu bar and sub menus
+        self.menu_bar = None
         self.file_menu = None
         self.analyse_menu = None
         self.graph_menu = None
@@ -115,11 +115,11 @@ class Application(tk.Frame):
         self.create_menu_bar()
 
         self.master.title(self.TITLE)
-        self.master.config(menu=self.menubar)
+        self.master.config(menu=self.menu_bar)
 
         # self.main_area.pack(side="left", fill="both")
 
-        # self.statusbar.pack(side="bottom", fill="x")
+        # self.status_bar.pack(side="bottom", fill="x")
 
     @staticmethod
     def open_file(**kwargs):
@@ -191,7 +191,7 @@ class Application(tk.Frame):
         sys.exit(0)
 
     def compare_docs(self):
-        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manual_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
         gold = self.open_json_with_path(path=gold_document_path)
@@ -202,43 +202,43 @@ class Application(tk.Frame):
                            grid_sections=self.canvas_grid_sections)
 
     def calc_precision(self):
-        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manual_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Precision", graph_headline="Precision Graph",
+        self.update_canvas(x_headline="Cosine", y_headline="Precision", graph_headline="Precision Graph",
                            grid_sections=self.canvas_grid_sections)
 
     def calc_recall(self):
-        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manual_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
-        self.update_canvas(x_headline="Cosinus", y_headline="Recall", graph_headline="Recall Graph",
+        self.update_canvas(x_headline="Cosine", y_headline="Recall", graph_headline="Recall Graph",
                            grid_sections=self.canvas_grid_sections)
 
     def calc_f1(self):
-        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manual_final.json"
         w2v_document_path = "../data/output_data/vector_words_tags.json"
 
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
         self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="f1", steps=0.01)
-        self.update_canvas(x_headline="Cosinus", y_headline="F1", graph_headline="F1 Score")
+        self.update_canvas(x_headline="Cosine", y_headline="F1", graph_headline="F1 Score")
 
     def clear_graph(self):
         self.graph_data = []
         self.update_canvas(x_headline="", y_headline="", graph_headline="")
 
     def count_existing_words(self):
-        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manuell_final.json"
+        gold_document_path = "../data/input_data/example_docs/example_docs_tags_manual_final.json"
         fashion_dictionary_path = "../data/dictionaries/one_word_entities.txt"
 
         gold_document = self.open_json_with_path(path=gold_document_path)
@@ -247,9 +247,9 @@ class Application(tk.Frame):
         print util.count_existing_words(gold_document, fashion_dictionary)
 
     def create_menu_bar(self):
-        self.menubar = tk.Menu(self, font=FONT_MENU)
+        self.menu_bar = tk.Menu(self, font=FONT_MENU)
 
-        self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.file_menu = tk.Menu(self.menu_bar, tearoff=0, font=FONT_MENU)
         # self.file_menu.add_command(label="Open", command=lambda: self.open_file())
         # self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
         # self.file_menu.add_separator()
@@ -257,7 +257,7 @@ class Application(tk.Frame):
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.quit)
 
-        self.analyse_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.analyse_menu = tk.Menu(self.menu_bar, tearoff=0, font=FONT_MENU)
         self.analyse_menu.add_command(label="Execute Word2Vec with self trained model",
                                       command=lambda: self.execute_w2v(model="selftrained"))
         self.analyse_menu.add_command(label="Execute Word2Vec with Glove model",
@@ -272,19 +272,19 @@ class Application(tk.Frame):
         self.analyse_menu.add_command(label="Count new and existing words from gold standard",
                                       command=lambda: self.count_existing_words())
 
-        self.graph_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.graph_menu = tk.Menu(self.menu_bar, tearoff=0, font=FONT_MENU)
         self.graph_menu.add_command(label="Precision Mode", command=lambda: self.update_canvas(grid_sections=10))
         self.graph_menu.add_command(label="Simple Mode", command=lambda: self.update_canvas(grid_sections=5))
         self.graph_menu.add_separator()
         self.graph_menu.add_command(label="Clear", command=lambda: self.clear_graph())
 
-        self.help_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
+        self.help_menu = tk.Menu(self.menu_bar, tearoff=0, font=FONT_MENU)
         self.help_menu.add_command(label="About", command=self.about)
 
-        self.menubar.add_cascade(label="File", menu=self.file_menu)
-        self.menubar.add_cascade(label="Analyse", menu=self.analyse_menu)
-        self.menubar.add_cascade(label="Graph", menu=self.graph_menu)
-        self.menubar.add_cascade(label="Help", menu=self.help_menu)
+        self.menu_bar.add_cascade(label="File", menu=self.file_menu)
+        self.menu_bar.add_cascade(label="Analyse", menu=self.analyse_menu)
+        self.menu_bar.add_cascade(label="Graph", menu=self.graph_menu)
+        self.menu_bar.add_cascade(label="Help", menu=self.help_menu)
 
     def create_canvas(self):
         self.CANVAS = tk.Canvas(self, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT,
