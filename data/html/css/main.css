@@ -3,12 +3,27 @@
     background-color: #e9e9e9;
 }
 
+.found {
+    cursor: pointer;
+}
+
 .exists-in-dict {
     color: #ff6900;
-    cursor: pointer;
 }
 
 .new-for-dict {
     color: green; /* new words found */
-    cursor: pointer;
+}
+
+.header {
+    color: white;
+    text-align: center;
+}
+
+.card-panel p {
+    margin-top: 0;
+}
+
+.material-tooltip {
+    text-align: left;
 }

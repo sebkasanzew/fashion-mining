@@ -4,6 +4,7 @@
 import decimal
 import json
 from pprint import pprint
+
 import lxml  # xml functions
 from lxml.html import builder as E  # for building a html document
 
@@ -204,7 +205,7 @@ def count_values_from_data(cos, data):
         fp += i["fp"]
         fn += i["fn"]
 
-    print "\nValues for cosinus =", cos, ":"
+    print "\nValues for cosine =", cos, ":"
     print "tp:", tp
     print "fp:", fp
     print "fn:", fn
@@ -501,17 +502,24 @@ def create_html(data=None, tags=None):
     if data is None:
         data = []
 
-    def exists_tag_start(tooltip_text):
-        return '<span class="exists-in-dict tooltipped" data-tooltip="' + tooltip_text + '" data-position="bottom"' \
-                                                                                         'data-delay="50">'
+    def tag_start(data_tooltip, data_dict_word=None, data_cosine=None):
+        if data_dict_word is None:
+            data_dict_word = "null"
+        if data_cosine is None:
+            data_cosine = "null"
 
-    exists_tag_end = '</span>'
+        if data_cosine == "null":
+            span_tag = '<span class="found null tooltipped" data-tooltip="' + data_tooltip + \
+                       '" data-position="top" data-delay="50" data-dict-word="' + data_dict_word + \
+                       '" data-cosine="' + data_cosine + '">'
+        else:
+            span_tag = '<span class="found tooltipped" data-tooltip="' + data_tooltip + \
+                       '" data-position="top" data-delay="50" data-dict-word="' + data_dict_word + \
+                       '" data-cosine="' + data_cosine + '">'
 
-    new_tag_start = '<span class="new-for-dict">'
-    new_tag_end = '</span>'
+        return span_tag
 
-    none_tag_start = '<span class="none">'
-    none_tag_end = '</span>'
+    tag_end = '</span>'
 
     sections = []  # contains all the tagged documents
 
@@ -546,27 +554,30 @@ def create_html(data=None, tags=None):
 
                 for key, index in enumerate(indices):
                     j = index[0] + added
-                    # print
-                    # print "####################### Index ########################"
-                    # print index
+
+                    similar_word = None
+                    cosine_distance = None
+
                     if len(index) > 3:
-                        similar_word = uni2utf(index[3])
-                        cosinus_distance = uni2utf(index[4])
-                        tooltip_text = "similar word: " + similar_word + "<br/>cosinus: " + cosinus_distance
+                        similar_word = uni2utf(str(index[3]))
+                        cosine_distance = uni2utf(str(index[4]))
+                        tooltip_text = "similar word: " + similar_word + "<br/>cosine: " + cosine_distance
                     else:
+                        print "#########################################################################"
                         print "ERROR: wrong index list"
                         pprint(index)
-                        tooltip_text = "similar word: " + "unknown" + "\ncosinus: " + "0"
-                    exists_tag_start_string = exists_tag_start(tooltip_text=tooltip_text)
+                        tooltip_text = "similar word: unknown<br/>cosine: 0"
+                    exists_tag_start_string = tag_start(data_tooltip=tooltip_text, data_dict_word=similar_word,
+                                                        data_cosine=cosine_distance)
                     text = insert_in_string(text, j, exists_tag_start_string)
                     added += len(exists_tag_start_string)
                     j = index[1] + added
-                    text = insert_in_string(text, j, exists_tag_end)
-                    added += len(exists_tag_end)
+                    text = insert_in_string(text, j, tag_end)
+                    added += len(tag_end)
                     # print added
 
-        section = E.E.section(text, id=doc_id)
-        card = E.DIV(E.CLASS("col s12 m6"), E.DIV(E.CLASS("card-panel"), section))
+        section = E.DIV(E.P("Document ID: " + doc_id), E.E.section(text, id=doc_id))
+        card = E.DIV(E.CLASS("col s12 m12 l6"), E.DIV(E.CLASS("card-panel"), section))
 
         sections.append(card)
 
@@ -574,9 +585,11 @@ def create_html(data=None, tags=None):
                    E.LINK(rel="stylesheet", href="css/main.css")]
     scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
                E.SCRIPT(src="js/materialize.js"),
+               E.SCRIPT(src="js/dictionary.js"),
                E.SCRIPT(src="js/main.js")]
 
-    doc_container = [E.DIV(E.CLASS("row"), *sections)]
+    header = E.DIV(E.CLASS("header col s12 orange darken-3"), E.H1("Zalando Textmining"))
+    doc_container = [E.DIV(E.CLASS("row"), header, *sections)]
 
     head = E.HEAD(*stylesheets)
     body = E.BODY(*(doc_container + scripts))
