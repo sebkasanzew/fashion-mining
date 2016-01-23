@@ -13,6 +13,7 @@ from gensim import corpora, models, similarities
 from pprint import pprint
 from os.path import join
 import numpy as np
+from multiprocessing import Pool
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -46,7 +47,20 @@ def word2vec(model):
     new_dictionary = list(dictionary)
 
     logging.info("NLTK Tokenizing...")
-    tokens = nltk_tokenizing(docs)
+    # tokens = nltk_tokenizing(docs)
+
+    ###########################################Multiprocessing###################################################
+    '''
+    Multiprocessing uses new processes instead of threads
+    Set pool parameter for number of parallel processes
+    '''
+    p = Pool(4)
+    tokens = p.map(nltk_tokenizing_parrallel, docs)
+    print(tokens)
+    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "w") as example_docs_tags:
+        json.dump(tokens, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
+    ############################################END###############################################################
+
 
     # load model for word2vec
     logging.info("Loading " + model + " model...")
@@ -195,6 +209,58 @@ def nltk_tokenizing(document):
         json.dump(result, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
     return result
+
+
+def nltk_tokenizing_parrallel(document):
+
+    extracted_text = document["extracted_text"]
+    sentences = nltk.sent_tokenize(extracted_text)
+
+    entities = []
+    indices = []
+    token_words = []
+
+    for s in sentences:
+
+        for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
+            # TODO Raul: check your intention... type(word) is checked twice (in check_tag())
+            if type(word) is tuple:
+                if check_tag(word):
+                    token_words.append(word[0])
+            else:
+                if check_tag(word):
+                    word_list = []
+                    for w in word:
+                        word_list.append(w[0])
+                    token_words.append(" ".join(word_list))
+                    print(token_words)
+
+    dictionary = corpora.Dictionary([token_words])
+
+    for word in dictionary:
+        i_tmp = []
+        contains = False
+
+        # Match pipe or non-alphaNumeric chars
+        if re.match(".*[\|].*|[^a-zA-Z\d\s:]", dictionary[word]) is None:
+            print("String matches: " + dictionary[word])
+
+            for m in re.finditer(dictionary[word], extracted_text):
+                try:
+                    if not extracted_text[m.start() - 1].isalpha() and not extracted_text[m.end()].isalpha():
+                        contains = True
+                        i_tmp.append([m.start(), m.end()])
+                except:
+                    print(document)
+                    print("The word: " + dictionary[word] + " contains pipes and will not be processed")
+
+            if contains:
+                entities.append(dictionary[word].encode('utf-8'))
+                indices.append(i_tmp)
+
+    tmp = {"_id": document["_id"]["$oid"], "entities": entities, "indices": indices}
+
+    return tmp
 
 
 def check_tag(word):
