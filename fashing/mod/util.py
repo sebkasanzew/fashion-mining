@@ -512,6 +512,8 @@ def create_html(data=None, tags=None):
             span_tag = '<span class="found null tooltipped" data-tooltip="' + data_tooltip + \
                        '" data-position="top" data-delay="50" data-dict-word="' + data_dict_word + \
                        '" data-cosine="' + data_cosine + '">'
+        elif data_cosine == "None" and data_dict_word == "None":
+            span_tag = '<span>'
         else:
             span_tag = '<span class="found tooltipped" data-tooltip="' + data_tooltip + \
                        '" data-position="top" data-delay="50" data-dict-word="' + data_dict_word + \
