@@ -19,7 +19,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # Global Paths TODO: improvement of dirs
 PROJECT_DIR = os.path.dirname(__file__) + "/../../"
 GLOVE_DIR = PROJECT_DIR + "data/tmp/"
-threshold = 0.9
+threshold = 0.7
 
 
 def word2vec(model):
@@ -40,7 +40,7 @@ def word2vec(model):
     # with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "r") as documents_file:
     #    tokens = json.load(documents_file)
 
-    with open(PROJECT_DIR + "data/dictionaries/entities_new.txt", "r") as dictionary_file:
+    with open(PROJECT_DIR + "data/dictionaries/entities.txt", "r") as dictionary_file:
         dictionary = json.load(dictionary_file)
 
     new_dictionary = list(dictionary)
