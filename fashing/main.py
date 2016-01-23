@@ -166,8 +166,8 @@ class Application(tk.Frame):
         data = self.open_json_with_path("../data/input_data/example_docs/example_docs.json")
         tags = self.open_json_with_path("../data/output_data/vector_words_tags.json")
 
-        # path = self.select_dir(title="Select where to save the HTML file")  # TODO uncomment
-        path = "../data/html/js_test.html"
+        path = self.select_dir(title="Select where to save the HTML file")
+        # path = "../data/html/js_test.html"  # for faster development
         self.save_file(path=path, text=util.create_html(data, tags))
 
     def execute_w2v(self, model):
@@ -242,8 +242,8 @@ class Application(tk.Frame):
         self.menubar = tk.Menu(self, font=FONT_MENU)
 
         self.file_menu = tk.Menu(self.menubar, tearoff=0, font=FONT_MENU)
-        self.file_menu.add_command(label="Open", command=lambda: self.open_file())
-        self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
+        # self.file_menu.add_command(label="Open", command=lambda: self.open_file())
+        # self.file_menu.add_command(label="Save", command=lambda: self.save_graph())
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Export HTML", command=lambda: self.export_html())
         self.file_menu.add_separator()

@@ -32,20 +32,6 @@ def sort_2d_array(array=None):
     return sorted(array, key=lambda l: l[0], reverse=False)
 
 
-def sort_3d_array(array=None):
-    # TODO: seems to do the same like sort_2d_array()
-    """
-    Sort a 3D array after the first number ascending.
-    :param array: unsorted 3D-list
-    :type array: list
-    :return: sorted 3D-list
-    :rtype: list[list[list[int]]]
-    """
-    if array is None:
-        return []
-    return sorted(array, key=lambda l: l[0], reverse=False)
-
-
 def merge_intersected_indices(array_one=None, array_two=None):
     """
     Merges two list elements into one list if they ave an intersection.
@@ -152,8 +138,6 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
 
 
 def compare_indices(gold_indices, w2v_indices):
-    # STEP 2
-    # TODO: compare the indices in the correct way
     """
     :param gold_indices:
     :param w2v_indices:
@@ -205,7 +189,7 @@ def compare_indices(gold_indices, w2v_indices):
     return doc_compare
 
 
-def calc_cos_precision(cos, data):
+def count_values_from_data(cos, data):
     all_tp_fp_fn = []
 
     for i in data:
@@ -225,65 +209,39 @@ def calc_cos_precision(cos, data):
     print "fp:", fp
     print "fn:", fn
 
-    precision = calc_precision(tp, fp)
+    return {"cos": cos, "tp": tp, "fp": fp, "fn": fn}
 
+
+def calc_cos_precision(cos, data):
+    values = count_values_from_data(cos, data)
+    precision = calc_precision(values["tp"], values["fp"])
     return [cos, precision]
 
 
 def calc_cos_recall(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-
-    recall = calc_recall(tp, fn)
-
+    values = count_values_from_data(cos, data)
+    recall = calc_recall(values["tp"], values["fn"])
     return [cos, recall]
 
 
 def calc_precision_recall(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-    # print "tn:", (tp + fn) - fp
-
-    precision = calc_precision(tp, fp)
-    recall = calc_recall(tp, fn)
-
-    # [calc_precision(tp, fp), calc_recall(tp, fn)]
-
-    # print "calc_precision_recall():", [recall, precision]
-
+    values = count_values_from_data(cos, data)
+    precision = calc_precision(values["tp"], values["fp"])
+    recall = calc_recall(values["tp"], values["fn"])
     return [recall, precision]
+
+
+def calc_f1_score(cos, data):
+    values = count_values_from_data(cos, data)
+
+    recall = calc_recall(values["tp"], values["fn"])
+    precision = calc_precision(values["tp"], values["fp"])
+
+    print "recall", recall
+    print "precision", precision
+
+    f1_score = 2 * (precision * recall) / (precision + recall)
+    return [cos, f1_score]
 
 
 def count_all_tp_fp_fn(cos, data):
@@ -494,14 +452,6 @@ def count_existing_words(gold_words, dictionary):
     :rtype: list
     """
 
-    # print "gold:"
-    # pprint(gold_words)
-
-    # print "dict:"
-    # pprint(dictionary)
-
-    # dictionary = ['Audi']  # TODO get the right dict list
-
     existing_words = 0
     new_words = 0
 
@@ -571,7 +521,13 @@ def create_html(data=None, tags=None):
 
         for tag in tags:
             if tag["_id"] == doc_id:
-                indices = sort_2d_array(extract_indices(tag))
+                extracted_indices = extract_indices(tag)
+                # print
+                # pprint(extracted_indices)
+                # print
+                indices = sort_2d_array(extracted_indices)
+                # pprint(indices)
+                # print
 
                 # remove all intersecting indices
                 restart = True
@@ -590,11 +546,17 @@ def create_html(data=None, tags=None):
 
                 for key, index in enumerate(indices):
                     j = index[0] + added
-                    print index
-                    similar_word = index[3]
-                    cosinus_distance = index[4]
-                    # tooltip_text = "similar word: " + similar_word + "\ncosinus: " + cosinus_distance
-                    tooltip_text = "similar word: " + "test" + "\ncosinus: " + str(0.5)
+                    # print
+                    # print "####################### Index ########################"
+                    # print index
+                    if len(index) > 3:
+                        similar_word = uni2utf(index[3])
+                        cosinus_distance = uni2utf(index[4])
+                        tooltip_text = "similar word: " + similar_word + "<br/>cosinus: " + cosinus_distance
+                    else:
+                        print "ERROR: wrong index list"
+                        pprint(index)
+                        tooltip_text = "similar word: " + "unknown" + "\ncosinus: " + "0"
                     exists_tag_start_string = exists_tag_start(tooltip_text=tooltip_text)
                     text = insert_in_string(text, j, exists_tag_start_string)
                     added += len(exists_tag_start_string)
@@ -611,7 +573,7 @@ def create_html(data=None, tags=None):
     stylesheets = [E.LINK(rel="stylesheet", href="css/materialize.min.css"),
                    E.LINK(rel="stylesheet", href="css/main.css")]
     scripts = [E.SCRIPT(src="js/jquery-2.2.0.min.js"),
-               E.SCRIPT(src="js/materialize.min.js"),
+               E.SCRIPT(src="js/materialize.js"),
                E.SCRIPT(src="js/main.js")]
 
     doc_container = [E.DIV(E.CLASS("row"), *sections)]
@@ -661,36 +623,6 @@ def calc_recall(tp, fn):
     """
     recall = float(tp) / (tp + fn)
     return recall
-
-
-def calc_f1_score(cos, data):
-    all_tp_fp_fn = []
-
-    for i in data:
-        all_tp_fp_fn.append(count_all_tp_fp_fn(cos, i))
-
-    tp = 0
-    fp = 0
-    fn = 0
-
-    for i in all_tp_fp_fn:
-        tp += i["tp"]
-        fp += i["fp"]
-        fn += i["fn"]
-
-    print "\nValues for cosinus =", cos, ":"
-    print "tp:", tp
-    print "fp:", fp
-    print "fn:", fn
-
-    recall = calc_recall(tp, fn)
-    precision = calc_precision(tp, fp)
-
-    print "recall", recall
-    print "precision", precision
-
-    f1_score = 2 * (precision * recall) / (precision + recall)
-    return [cos, f1_score]
 
 
 def step_range(start, stop, step):

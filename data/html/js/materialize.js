@@ -1362,7 +1362,7 @@ $(document).ready(function(){
             newTooltip.css({ display: 'block', left: '0px', top: '0px' });
 
             // Set Tooltip text
-            newTooltip.children('span').text(origin.attr('data-tooltip'));
+            newTooltip.children('span').html(origin.attr('data-tooltip'));
 
             // Tooltip positioning
             var originWidth = origin.outerWidth();
