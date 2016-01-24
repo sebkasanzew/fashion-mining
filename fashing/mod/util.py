@@ -107,10 +107,8 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
     for gold_doc in gold_document:
         for w2v_doc in w2v_document:
             if gold_doc["_id"] == w2v_doc["_id"]:  # check if the sentences are identical
-                append = compare_indices(gold_doc["indices"], w2v_doc["indices"])
+                append = compare_indices(gold_doc, w2v_doc)
                 compared.append(append)
-                # print "compared:"
-                # print pprint(compared)
 
     graph_data = []
 
@@ -133,7 +131,9 @@ def compare_docs(gold_document=None, w2v_document=None, mode=None, steps=0.05):
 
     graph_data = sorted(graph_data)
 
-    pprint(graph_data)
+    # pprint(graph_data)
+    for key, i in enumerate(graph_data):
+        print graph_data[key][0], ";", graph_data[key][1]
 
     return graph_data
 
@@ -249,32 +249,16 @@ def count_all_tp_fp_fn(cos, data):
     filtered_data = []
     ignored_data = []
 
-    # print "##################### P/R ######################"
-    # print "data:"
-    # pprint(data)
-
     for i in data:
-        # print "cos:", cos
-        # print "i:", i
-        # print "i['cos']:", i["cos"]
-        # print "data", data[0]
-
         if i["cos"] >= cos or i["cos"] is None:
             filtered_data.append(i)
         else:
             ignored_data.append(i)
 
-    # print "filtered_data:"
-    # pprint(filtered_data)
-    #
-    # print "ignored_data:"
-    # pprint(ignored_data)
-
     tp = calc_tp(filtered_data)
     fp = calc_fp(filtered_data)
     fn = calc_fn(data, ignored_data)
 
-    # pprint({"tp": tp, "fp": fp, "fn": fn})
     return {"tp": tp, "fp": fp, "fn": fn}
 
 
@@ -333,26 +317,29 @@ def extract_indices(doc=None):
 
         indices = doc["indices"]
         entities = doc["entities"]
-        w2v = doc["cos_dist"]
 
-        # print "entities:", entities
+        if "cos_dist" in doc:
+            w2v = doc["cos_dist"]
 
-        for key, i in enumerate(indices):
-            entity = entities[key]
-            w2v_word = w2v[key][0]
-            cos_dist = w2v[key][1]
+            for key, i in enumerate(indices):
+                entity = entities[key]
+                w2v_word = w2v[key][0]
+                cos_dist = w2v[key][1]
 
-            # print "entity:", entity
-            print
+                for j in i:
+                    j.append(entity)
+                    j.append(w2v_word)
+                    j.append(cos_dist)
 
-            for j in i:
-                j.append(entity)
-                j.append(w2v_word)
-                j.append(cos_dist)
+                    new_list.append(j)
+        else:
+            for key, i in enumerate(indices):
+                entity = entities[key]
 
-                print j
+                for j in i:
+                    j.append(entity)
 
-                new_list.append(j)
+                    new_list.append(j)
 
         return new_list
 
@@ -431,9 +418,9 @@ def open_json(path=str()):
         return False
 
 
+# TODO Dunno, makes no sense to me. Just leave it like this for now
 def export_html(path=str()):
     """
-    Dunno, makes no sense to me. Just leave it like this for now
     :param path:
     :type path: str
     :return: Nothing

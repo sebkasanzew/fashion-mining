@@ -197,7 +197,7 @@ class Application(tk.Frame):
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
-        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec)
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, steps=0.01)
         self.update_canvas(x_headline="Recall", y_headline="Precision", graph_headline="Precision/Recall Graph",
                            grid_sections=self.canvas_grid_sections)
 
@@ -208,7 +208,7 @@ class Application(tk.Frame):
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
-        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.02)
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="precision", steps=0.01)
         self.update_canvas(x_headline="Cosine", y_headline="Precision", graph_headline="Precision Graph",
                            grid_sections=self.canvas_grid_sections)
 
@@ -219,7 +219,7 @@ class Application(tk.Frame):
         gold = self.open_json_with_path(path=gold_document_path)
         word2vec = self.open_json_with_path(path=w2v_document_path)
 
-        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.02)
+        self.graph_data = util.compare_docs(gold_document=gold, w2v_document=word2vec, mode="recall", steps=0.01)
         self.update_canvas(x_headline="Cosine", y_headline="Recall", graph_headline="Recall Graph",
                            grid_sections=self.canvas_grid_sections)
 
