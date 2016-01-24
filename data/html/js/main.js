@@ -54,6 +54,6 @@ $().ready(function () {
 
         var tooltipText = "similar word: " + word + "<br/>cosine: 1.0";
         $word.data("tooltip", tooltipText);
-        $(this).tooltip({tooltip: tooltipText, delay: 200});
+        $(this).tooltip({tooltip: tooltipText});
 	});
 });
