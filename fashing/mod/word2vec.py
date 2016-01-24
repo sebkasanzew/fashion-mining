@@ -56,7 +56,7 @@ def word2vec(model):
     '''
     p = Pool(4)
     tokens = p.map(nltk_tokenizing_parrallel, docs)
-    print(tokens)
+    # print(tokens)
     with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "w") as example_docs_tags:
         json.dump(tokens, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
     ############################################END###############################################################
@@ -233,7 +233,7 @@ def nltk_tokenizing_parrallel(document):
                     for w in word:
                         word_list.append(w[0])
                     token_words.append(" ".join(word_list))
-                    print(token_words)
+                    # print(token_words)
 
     dictionary = corpora.Dictionary([token_words])
 
@@ -243,7 +243,7 @@ def nltk_tokenizing_parrallel(document):
 
         # Match pipe or non-alphaNumeric chars
         if re.match(".*[\|].*|[^a-zA-Z\d\s:]", dictionary[word]) is None:
-            print("String matches: " + dictionary[word])
+            # print("String matches: " + dictionary[word])
 
             for m in re.finditer(dictionary[word], extracted_text):
                 try:
@@ -251,7 +251,7 @@ def nltk_tokenizing_parrallel(document):
                         contains = True
                         i_tmp.append([m.start(), m.end()])
                 except:
-                    print(document)
+                    # print(document)
                     print("The word: " + dictionary[word] + " contains pipes and will not be processed")
 
             if contains:
