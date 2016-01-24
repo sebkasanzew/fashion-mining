@@ -8,16 +8,16 @@
     cursor: pointer;
 }
 
+.null {
+    color: red;
+}
+
 .exists-in-dict {
     color: #ff6900;
 }
 
 .new-for-dict {
     color: green; /* new words found */
-}
-
-.null {
-    color: red;
 }
 
 .filtered {
@@ -36,6 +36,10 @@
 
 .material-tooltip {
     text-align: left;
+}
+
+.legend li:nth-child(3) {
+	display: none;
 }
 
 #modalCosineThreshold {
