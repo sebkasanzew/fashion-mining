@@ -13,7 +13,8 @@ from gensim import corpora, models, similarities
 from pprint import pprint
 from os.path import join
 import numpy as np
-from multiprocessing import Pool
+from multiprocessing import Pool, freeze_support
+import itertools
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -29,7 +30,6 @@ def word2vec(model):
     :param model: string
     :return: result-json with tagged words, indices and cosine distance
     """
-
     # Loading external files
     logging.info("Loading documents and dictionary...")
     # with open(PROJECT_DIR + "data/input_data/crawler_with_ids.json", "r") as documents_file:
@@ -44,7 +44,7 @@ def word2vec(model):
     with open(PROJECT_DIR + "data/dictionaries/entities.txt", "r") as dictionary_file:
         dictionary = json.load(dictionary_file)
 
-    new_dictionary = list(dictionary)
+    old_dictionary = list(dictionary)
 
     logging.info("NLTK Tokenizing...")
     # tokens = nltk_tokenizing(docs)
@@ -67,152 +67,32 @@ def word2vec(model):
     model = load_model(model)
 
     logging.info("Determining similarity...")
-    sim = 0
-    counter = 0
-    result = []
 
-    for doc in tokens:
-        cos_dist = []
-        word = ""
-        word_dict = ""
-        extracted_tokens = doc["entities"]
-
-        for token in extracted_tokens:
-            for d in dictionary:
-                try:
-                    if " " in token:
-                        if " " in d:
-                            cos = model.n_similarity(token.split(" "), d.split(" "))
-                        else:
-                            cos = 0
-                    else:
-                        cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
-
-                    if cos >= sim:
-                        sim = cos
-                        word = token
-                        word_dict = d
-
-                except:
-                    pass
-
-            # try:
-            #     print"----------------"
-            #     print "word " + str(token)
-            #     print "cos: " + str(sim)
-            #     print "dict: " + str(word_dict)
-            # except:
-            #     pass
-
-            # appending JOIN-Partner
-            try:
-
-                if sim == 0:
-                    cos_dist.append(["None", "None"])
-                else:
-                    cos_dist.append([str(word_dict), str(sim)])
-
-                    # add word to dictionary if exceeds threshold
-                    if not (str(word) in new_dictionary) and sim >= threshold:
-                        # print("Appending: ", str(word))
-                        counter +=1
-                        new_dictionary.append(str(word))
-                    else:
-                        # print("Word" + str(word) + " already exists in dictionary")
-                        pass
-
-                    sim = 0
-
-            except:
-                cos_dist.append(["None", "None"])
-
-        doc["cos_dist"] = cos_dist
-        result.append(doc)
-
+    ###########################################Multiprocessing###################################################
+    '''
+    Multiprocessing uses new processes instead of threads
+    Set pool parameter for number of parallel processes
+    '''
+    freeze_support()
+    #use similarity_star class as wrapper
+    result = p.map(similarity_star, itertools.izip(tokens, itertools.repeat(model), itertools.repeat(dictionary)))
     logging.info("Writing auto tagged json...")
     with open(PROJECT_DIR + "data/output_data/vector_words_tags.json", "w") as docs_tags:
         json.dump(result, docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
 
-    logging.info(str(counter) + " new words added to dictionary!")
+    ############################################END###############################################################
+
+    #logging.info(str(counter) + " new words added to dictionary!")
     logging.info("Writing new dictionary...")
+    new_dictionary = add_to_dict(result, old_dictionary)
+
     with open(PROJECT_DIR + "data/dictionaries/entities_new.txt", "w") as new_dict_file:
         json.dump(new_dictionary, new_dict_file, sort_keys=True, indent=4, ensure_ascii=True)
 
     logging.info("Word2Vec finished!")
     return result
 
-
-def nltk_tokenizing(document):
-    """
-    Takes a JSON-Document, which contains plaintext at key "extracted_text" and returns a list of single words
-    after tokenizing with NLTK
-    :param document:
-    :return: list of words
-    """
-
-    # x = 0
-    result = []
-    for data in document:
-
-        # if x == 3:
-        #     break
-        # x += 1
-
-        extracted_text = data["extracted_text"]
-        sentences = nltk.sent_tokenize(extracted_text)
-
-        entities = []
-        indices = []
-        token_words = []
-
-        for s in sentences:
-
-            for word in (nltk.ne_chunk(nltk.tag.pos_tag(nltk.word_tokenize(s)))):
-                if type(word) is tuple:
-                    if check_tag(word):
-                        token_words.append(word[0])
-                else:
-                    if check_tag(word):
-                        word_list = []
-                        for w in word:
-                            word_list.append(w[0])
-                        token_words.append(" ".join(word_list))
-                        # print(token_words)
-
-        dictionary = corpora.Dictionary([token_words])
-
-        for word in dictionary:
-            i_tmp = []
-            contains = False
-
-            # Match pipe or non-alphaNumeric chars
-            if re.match(".*[\|].*|[^a-zA-Z\d\s:]", dictionary[word]) is None:
-                # print("String matches: " + dictionary[word])
-
-                for m in re.finditer(dictionary[word], extracted_text):
-                    try:
-                        if not extracted_text[m.start() - 1].isalpha() and not extracted_text[m.end()].isalpha():
-                            contains = True
-                            i_tmp.append([m.start(), m.end()])
-                    except:
-                        # print(data)
-                        print("The word: " + dictionary[word] + " contains pipes and will not be processed")
-
-                if contains:
-                    entities.append(dictionary[word].encode('utf-8'))
-                    indices.append(i_tmp)
-
-        tmp = {"_id": data["_id"]["$oid"], "entities": entities, "indices": indices}
-        result.append(tmp)
-
-    with open(PROJECT_DIR + "data/input_data/example_docs/example_docs_tokenized.json", "w") as example_docs_tags:
-        json.dump(result, example_docs_tags, sort_keys=True, indent=4, ensure_ascii=False)
-
-    return result
-
-
 def nltk_tokenizing_parrallel(document):
-
     extracted_text = document["extracted_text"]
     sentences = nltk.sent_tokenize(extracted_text)
 
@@ -261,6 +141,81 @@ def nltk_tokenizing_parrallel(document):
     tmp = {"_id": document["_id"]["$oid"], "entities": entities, "indices": indices}
 
     return tmp
+
+def similarity_parallel(document, model, dictionary):
+    sim = 0
+
+    logging.info(model)
+    cos_dist = []
+    word = ""
+    word_dict = ""
+    extracted_tokens = document["entities"]
+
+    for token in extracted_tokens:
+        for d in dictionary:
+            try:
+                if " " in token:
+                    if " " in d:
+                        cos = model.n_similarity(token.split(" "), d.split(" "))
+                    else:
+                        cos = 0
+                else:
+                    cos = max(model.similarity(token, d), model.similarity(token.lower(), d.lower()))
+
+                if cos >= sim:
+                    sim = cos
+                    word = token
+                    word_dict = d
+
+            except:
+                pass
+
+        # appending JOIN-Partner
+        try:
+
+            if sim == 0:
+                cos_dist.append(["None", "None"])
+            else:
+                cos_dist.append([str(word_dict), str(sim)])
+
+                sim = 0
+
+        except:
+            cos_dist.append(["None", "None"])
+
+    document["cos_dist"] = cos_dist
+    return document
+
+def similarity_star(a_b):
+    return similarity_parallel(*a_b)
+
+def add_to_dict(result, dict_old):
+
+    dict_old = [x.encode("utf-8") for x in dict_old]
+
+    for doc in result:
+        i = 0
+        entities = doc["entities"]
+        cos_dist = doc["cos_dist"]
+        for entity in entities:
+            # add word to dictionary if exceeds threshold
+            #logging.info("Try:  " + entity)
+            #entity = entity.encode('utf-8')
+            try:
+
+                if not (str(entity) in dict_old) and float(cos_dist[i][1]) >= threshold:
+
+                    dict_old.append(str(entity))
+                else:
+                    #    # print("Word" + str(word) + " already exists in dictionary")
+                    pass
+
+            except:
+                pass
+
+            i += 1
+
+    return dict_old
 
 
 def check_tag(word):
@@ -353,3 +308,6 @@ def custom_public_function_reachable_from_outside():
 if __name__ == "__main__":
     # Execute the main function if this file was executed from the terminal
     word2vec(model="selftrained")
+
+
+
