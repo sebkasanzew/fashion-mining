@@ -551,11 +551,11 @@ def create_html(data=None, tags=None):
                         similar_word = uni2utf(str(index[3]))
                         cosine_distance = uni2utf(str(index[4]))
                         tooltip_text = "similar word: " + similar_word + "<br/>cosine: " + cosine_distance
-                    else:
-                        print "#########################################################################"
-                        print "ERROR: wrong index list"
+                    else:  # TODO resolve bug with wrong index length
+                        # print "#########################################################################"
+                        # print "ERROR: wrong index list"
                         pprint(index)
-                        tooltip_text = "similar word: unknown<br/>cosine: null"
+                        tooltip_text = "similar word: unknown<br/>cosine: 1.0"
                     exists_tag_start_string = tag_start(data_tooltip=tooltip_text, data_dict_word=similar_word,
                                                         data_cosine=cosine_distance)
                     text = insert_in_string(text, j, exists_tag_start_string)
