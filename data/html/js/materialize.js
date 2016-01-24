@@ -1353,8 +1353,11 @@ $(document).ready(function(){
       origin.on({
         'mouseenter.tooltip': function(e) {
           var tooltip_delay = origin.attr('data-delay');
+            var tooltip_text = options.tooltip || origin.attr('data-tooltip');
           tooltip_delay = (tooltip_delay === undefined || tooltip_delay === '') ?
               options.delay : tooltip_delay;
+            tooltip_text = (tooltip_text === undefined || tooltip_text === '') ?
+                options.tooltip : tooltip_text;
           timeoutRef = setTimeout(function(){
             started = true;
             newTooltip.velocity('stop');
@@ -1362,7 +1365,8 @@ $(document).ready(function(){
             newTooltip.css({ display: 'block', left: '0px', top: '0px' });
 
             // Set Tooltip text
-            newTooltip.children('span').html(origin.attr('data-tooltip'));
+
+            newTooltip.children('span').html(tooltip_text);
 
             // Tooltip positioning
             var originWidth = origin.outerWidth();

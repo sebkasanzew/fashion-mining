@@ -4,6 +4,7 @@ $().ready(function () {
     var $inputCosine = $('#inputCosine');
     var $modalCosineThresholdSet = $("#modalCosineThresholdSet");
     var $currentThreshold = $("#currentThreshold");
+	var $null = $(".null");
 
     $tagged.each(function() {
         var $this = $(this);
@@ -43,5 +44,16 @@ $().ready(function () {
                 $(this).removeClass("filtered");
             }
         })
-    }
+    };
+	
+	$null.each(function() {
+        var $word = $(this);
+		var word = $(this).text();
+        var tooltipID = $(this).data("tooltip-id");
+        $("#" + tooltipID).find("span").html("similar word: " + word + "<br/>cosine: 1.0");
+
+        var tooltipText = "similar word: " + word + "<br/>cosine: 1.0";
+        $word.data("tooltip", tooltipText);
+        $(this).tooltip({tooltip: tooltipText, delay: 200});
+	});
 });
