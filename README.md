@@ -59,3 +59,6 @@ open the terminal and execute the following code:
 ```bash
 ~$ sudo pip install texttable
 ```
+
+## Glove setup
+To use the Glove Word2Vec in the GUI you need to download the [pre-trained word vectors with 840B tokens](http://nlp.stanford.edu/data/glove.840B.300d.zip) from [http://nlp.stanford.edu/projects/glove/](http://nlp.stanford.edu/projects/glove/) and save the text file as "common.840B.300d.txt" in a self created folder named "fashion-mining\data\tmp".
