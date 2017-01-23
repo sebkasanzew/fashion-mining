@@ -1,1 +1,2 @@
 token_words.txt filter=lfs diff=lfs merge=lfs -text
+plain_text_*.json filter=lfs diff=lfs merge=lfs -text
