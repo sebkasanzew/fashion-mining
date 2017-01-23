@@ -1,5 +1,9 @@
 # Zalando Textmining
 
+## What is this about?
+
+[Slides about the purpose and the functionality of this project (german)](Zalando_Textmining.pdf)
+
 ## Installation instructions for Windows
 
 ### NLTK Installation
